@@ -12,7 +12,7 @@ public static class DatabaseExtensions
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(
                 configuration.GetConnectionString("DefaultConnection"),
-                b => b.MigrationsAssembly("MedVault.Web")
+                b => b.MigrationsAssembly("MedVault.Data")
             )
         );
 

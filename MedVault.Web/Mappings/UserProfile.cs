@@ -1,11 +1,14 @@
 using AutoMapper;
 using MedVault.Models.Entities;
 using MedVault.Models.Dtos.ResponseDtos;
+using MedVault.Models.Dtos.RequestDtos;
 
 public class UserProfile : Profile
 {
     public UserProfile()
     {
-        CreateMap<User, UserResponse>();
+        CreateMap<UserRequest, User>()
+            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
+
     }
 }

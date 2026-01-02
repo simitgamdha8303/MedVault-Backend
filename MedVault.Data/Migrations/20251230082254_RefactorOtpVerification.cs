@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace MedVault.Web.Migrations
+namespace MedVault.Data.Migrations
 {
     /// <inheritdoc />
     public partial class RefactorOtpVerification : Migration

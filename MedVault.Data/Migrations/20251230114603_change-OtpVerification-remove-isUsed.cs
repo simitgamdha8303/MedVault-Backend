@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace MedVault.Web.Migrations
+namespace MedVault.Data.Migrations
 {
     /// <inheritdoc />
     public partial class changeOtpVerificationremoveisUsed : Migration

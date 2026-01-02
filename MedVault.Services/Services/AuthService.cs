@@ -27,33 +27,23 @@ public class AuthService(
     private readonly IEmailService _emailService = emailService;
     private readonly PasswordHasher<User> _passwordHasher = new();
 
-    public async Task<Response<LoginResponse?>> LoginUserAsync(LoginRequest loginRequest)
+    public async Task<Response<LoginResponse>> LoginUserAsync(LoginRequest loginRequest)
     {
-        string identifier = loginRequest.Identifier.Trim();
-
-        bool isEmail = identifier.Contains("@");
-        bool isPhone = Regex.IsMatch(identifier, @"^[6-9]\d{9}$");
-
-        if (!isEmail && !isPhone)
-        {
-            throw new ArgumentException(ErrorMessages.InvalidEmailOrPhone);
-        }
-
         // is user exists
-        User? user = await _userRepository.FirstOrDefaultAsync(u => u.Email == identifier || u.Mobile == identifier);
+        User? user = await _userRepository.FirstOrDefaultAsync(u => u.Email == loginRequest.Email);
 
         if (user == null)
         {
             throw new ArgumentException(ErrorMessages.NotFound("User"));
         }
 
-        PasswordVerificationResult result = _passwordHasher.VerifyHashedPassword(
+        PasswordVerificationResult passwordVerificationResult = _passwordHasher.VerifyHashedPassword(
             user,
             user.PasswordHash,
             loginRequest.Password
         );
 
-        if (result != PasswordVerificationResult.Success)
+        if (passwordVerificationResult != PasswordVerificationResult.Success)
         {
             throw new UnauthorizedAccessException(ErrorMessages.Invalid("Password"));
         }
@@ -80,10 +70,9 @@ public class AuthService(
 
             await _otpRepository.AddAsync(otpEntity);
 
-            //Send OTP via Email ( sms is pending )
             await _emailService.SendOtpAsync(user.Email, otp);
 
-            return ResponseHelper.Response<LoginResponse?>(
+            return ResponseHelper.Response<LoginResponse>(
                  data: new LoginResponse
                  {
                      RequiresOtp = true,
@@ -91,7 +80,7 @@ public class AuthService(
                      Token = null
                  },
                 succeeded: true,
-                message: SuccessMessages.OtpSent,
+                message: SuccessMessages.OTP_SENT,
                 errors: null,
                 statusCode: (int)HttpStatusCode.Accepted
             );
@@ -100,7 +89,7 @@ public class AuthService(
         // login (No OTP)
         string token = _jwt.GenerateToken(user);
 
-        return ResponseHelper.Response<LoginResponse?>(
+        return ResponseHelper.Response<LoginResponse>(
             data: new LoginResponse
             {
                 RequiresOtp = false,
@@ -108,13 +97,13 @@ public class AuthService(
                 UserId = null
             },
             succeeded: true,
-            message: SuccessMessages.LoginSuccess,
+            message: SuccessMessages.LOGIN_SUCCESS,
             errors: null,
             statusCode: (int)HttpStatusCode.OK
         );
     }
 
-    public async Task<Response<string?>> VerifyOtpAsync(VerifyOtpRequest request)
+    public async Task<Response<string>> VerifyOtpAsync(VerifyOtpRequest request)
     {
         OtpVerification? otpEntry = await _otpRepository
             .FirstOrDefaultAsync(o =>
@@ -128,13 +117,18 @@ public class AuthService(
 
         User? user = await _userRepository.GetByIdAsync(request.UserId);
 
-        PasswordVerificationResult result = _passwordHasher.VerifyHashedPassword(
+        if (user == null)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
+
+        PasswordVerificationResult passwordVerificationResult = _passwordHasher.VerifyHashedPassword(
             user,
             otpEntry.OtpHash,
             request.Otp
         );
 
-        if (result != PasswordVerificationResult.Success)
+        if (passwordVerificationResult != PasswordVerificationResult.Success)
         {
             throw new UnauthorizedAccessException(ErrorMessages.Invalid("OTP"));
         }
@@ -146,16 +140,16 @@ public class AuthService(
 
         string token = _jwt.GenerateToken(user);
 
-        return ResponseHelper.Response<string?>(
+        return ResponseHelper.Response<string>(
             data: token,
             succeeded: true,
-            message: SuccessMessages.OtpVerified,
+            message: SuccessMessages.OTP_VERIFIED,
             errors: null,
             statusCode: (int)HttpStatusCode.OK
         );
     }
 
-    public async Task<Response<string?>> ResendOtpAsync(ResendOtpRequest request)
+    public async Task<Response<string>> ResendOtpAsync(ResendOtpRequest request)
     {
         User? user = await _userRepository.GetByIdAsync(request.UserId);
 
@@ -187,10 +181,10 @@ public class AuthService(
 
         await _emailService.SendOtpAsync(user.Email, otp);
 
-        return ResponseHelper.Response<string?>(
+        return ResponseHelper.Response<string>(
             data: null,
             succeeded: true,
-            message: SuccessMessages.OtpSent,
+            message: SuccessMessages.OTP_SENT,
             errors: null,
             statusCode: (int)HttpStatusCode.OK
         );

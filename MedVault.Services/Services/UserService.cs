@@ -20,36 +20,31 @@ public class UserService(IUserRepository userRepository, IMapper mapper) : IUser
     private readonly PasswordHasher<User> _passwordHasher = new PasswordHasher<User>();
     private readonly IMapper _mapper = mapper;
 
-    public async Task<Response<UserResponse?>> RegisterUserAsync(UserRequest userRequest)
+    public async Task<Response<string>> RegisterUserAsync(UserRequest userRequest)
     {
 
         // if user already exists
-        User? existingUser =
-            await _userRepository.FirstOrDefaultAsync(u => u.Email == userRequest.Email);
+        bool userExists = await _userRepository.AnyAsync(u => u.Email == userRequest.Email);
 
-        if (existingUser != null)
+        if (userExists!)
         {
-            throw new ArgumentException("User is Exists");
+            throw new ArgumentException(ErrorMessages.AlreadyExists("User"));
         }
 
         // Create new user
-        User user = new User
-        {
-            Email = userRequest.Email,
-            FirstName = userRequest.FirstName,
-            MiddleName = userRequest.MiddleName,
-            LastName = userRequest.LastName,
-            Mobile = userRequest.Mobile,
-        };
+        User user = _mapper.Map<User>(userRequest);
+
+        // hash password
+        user.PasswordHash = _passwordHasher.HashPassword(user, userRequest.Password);
+
+
 
         user.PasswordHash = _passwordHasher.HashPassword(user, userRequest.Password);
 
         await _userRepository.AddAsync(user);
 
-        UserResponse userResponse = _mapper.Map<UserResponse>(user);
-
-        return ResponseHelper.Response<UserResponse?>(
-            data: userResponse,
+        return ResponseHelper.Response<string>(
+            data: null,
             succeeded: true,
             message: SuccessMessages.Registered("User"),
             errors: null,

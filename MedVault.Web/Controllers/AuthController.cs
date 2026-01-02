@@ -16,22 +16,22 @@ public class AuthController(IAuthService authService) : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest loginRequest)
     {
-        Response<LoginResponse?>? response = await _authService.LoginUserAsync(loginRequest);
+        Response<LoginResponse> response = await _authService.LoginUserAsync(loginRequest);
         return Ok(response);
     }
 
     [HttpPost("verify-otp")]
     public async Task<IActionResult> VerifyOtp(VerifyOtpRequest request)
     {
-        var response = await _authService.VerifyOtpAsync(request);
-        return StatusCode(response.StatusCode, response);
+        Response<string> response = await _authService.VerifyOtpAsync(request);
+        return Ok(response);
     }
 
     [HttpPost("resend-otp")]
     public async Task<IActionResult> ResendOtp(ResendOtpRequest request)
     {
-        var response = await _authService.ResendOtpAsync(request);
-        return StatusCode(response.StatusCode, response);
+        Response<string> response = await _authService.ResendOtpAsync(request);
+        return Ok(response);
     }
 
 

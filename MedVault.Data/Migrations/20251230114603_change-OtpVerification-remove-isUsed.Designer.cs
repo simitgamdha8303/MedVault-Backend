@@ -9,11 +9,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace MedVault.Web.Migrations
+namespace MedVault.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251230113325_change-user-IsVerified")]
-    partial class changeuserIsVerified
+    [Migration("20251230114603_change-OtpVerification-remove-isUsed")]
+    partial class changeOtpVerificationremoveisUsed
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -202,9 +202,6 @@ namespace MedVault.Web.Migrations
 
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsUsed")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("OtpHash")
                         .IsRequired()

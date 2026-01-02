@@ -9,11 +9,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace MedVault.Web.Migrations
+namespace MedVault.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251229063923_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260102081300_remove-user-middlename")]
+    partial class removeusermiddlename
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -200,13 +200,13 @@ namespace MedVault.Web.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("IsVerify")
-                        .HasColumnType("boolean");
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Otp")
+                    b.Property<string>("OtpHash")
                         .IsRequired()
-                        .HasMaxLength(6)
-                        .HasColumnType("character varying(6)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -390,11 +390,6 @@ namespace MedVault.Web.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<string>("MiddleName")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");

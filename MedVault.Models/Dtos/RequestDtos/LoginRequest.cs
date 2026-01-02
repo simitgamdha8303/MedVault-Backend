@@ -6,9 +6,9 @@ namespace MedVault.Models.Dtos.RequestDtos;
 public class LoginRequest
 {
 
-    [Required(ErrorMessage = ValidationMessages.IdentifierRequired)]
-    public string Identifier { get; set; } = null!; // Email or Phone
+    [Required(ErrorMessage = ValidationMessages.IDENTIFIER_REQUIRED)]
+    public string Email { get; set; } = null!; // Email or Phone
 
-    [Required(ErrorMessage = ValidationMessages.PasswordRequired)]
+    [Required(ErrorMessage = ValidationMessages.PASSWORD_REQUIRED)]
     public string Password { get; set; } = null!;
 }

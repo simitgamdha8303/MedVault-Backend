@@ -19,9 +19,6 @@ public class User
     public string FirstName { get; set; } = null!;
 
     [Required, MaxLength(255)]
-    public string MiddleName { get; set; } = null!;
-
-    [Required, MaxLength(255)]
     public string LastName { get; set; } = null!;
 
     [Required, Phone, MaxLength(20)]

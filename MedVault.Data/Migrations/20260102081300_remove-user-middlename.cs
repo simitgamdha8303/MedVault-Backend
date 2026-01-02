@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace MedVault.Web.Migrations
+namespace MedVault.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class changeuserIsVerified : Migration
+    public partial class removeusermiddlename : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

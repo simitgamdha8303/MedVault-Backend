@@ -57,6 +57,12 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         _dbSet.RemoveRange(entities);
     }
 
+    public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
+    {
+        return await _dbSet.AnyAsync(predicate);
+    }
+
+
 
     public async Task SaveChangesAsync()
     {

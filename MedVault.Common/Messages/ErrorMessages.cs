@@ -2,32 +2,26 @@ namespace MedVault.Common.Messages;
 
 public static class ErrorMessages
 {
-    // public static string NotFound(string entityName) => $"{entityName} not found.";
-    // public static string AlreadyExists(string entityName) => $"{entityName} already exists.";
-    // public static string Invalid(string entityName) => $"{entityName} is invalid.";
-    // public const string Unauthorized = "You are not authorized to perform this action.";
-    // public const string InternalError = "An unexpected error occurred.";
-    // public const string InvalidEmailOrPhone = "Invalid email or phone number";
 
-    private const string NotFoundTemplate = "{0} not found.";
-    private const string AlreadyExistsTemplate = "{0} already exists.";
-    private const string InvalidTemplate = "{0} is invalid.";
+    private const string NOT_FOUND_TEMPLATE = "{0} not found.";
+    private const string ALREDY_EXISTS_TEMPLATE = "{0} already exists.";
+    private const string INVALID_TEMPLATE = "{0} is invalid.";
 
     public static string NotFound(string entityName) =>
-        string.Format(NotFoundTemplate, entityName);
+        string.Format(NOT_FOUND_TEMPLATE, entityName);
 
     public static string AlreadyExists(string entityName) =>
-        string.Format(AlreadyExistsTemplate, entityName);
+        string.Format(ALREDY_EXISTS_TEMPLATE, entityName);
 
     public static string Invalid(string entityName) =>
-        string.Format(InvalidTemplate, entityName);
+        string.Format(INVALID_TEMPLATE, entityName);
 
-    public const string Unauthorized =
+    public const string UNAUTHORIZED =
         "You are not authorized to perform this action.";
 
-    public const string InternalError =
+    public const string INTERNAL_ERROR =
         "An unexpected error occurred.";
 
-    public const string InvalidEmailOrPhone =
+    public const string INVALID_EMAIL_OR_PHONE =
         "Invalid email or phone number";
 }

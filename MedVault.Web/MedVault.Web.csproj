@@ -25,5 +25,6 @@
   <ItemGroup>
     <ProjectReference Include="..\MedVault.Services\MedVault.Services.csproj" />
     <ProjectReference Include="..\MedVault.Utilities\MedVault.Utilities.csproj" />
+    <ProjectReference Include="..\MedVault.Data\MedVault.Data.csproj" />
   </ItemGroup>
 </Project>

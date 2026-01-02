@@ -1,6 +1,5 @@
 using MedVault.Common.Response;
 using MedVault.Models.Dtos.RequestDtos;
-using MedVault.Models.Dtos.ResponseDtos;
 using MedVault.Services.IServices;
 using Microsoft.AspNetCore.Mvc;
 namespace MedVault.Web.Controllers;
@@ -14,7 +13,7 @@ public class UserController(IUserService userService) : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register(UserRequest userRequest)
     {
-        Response<UserResponse?> response = await _userService.RegisterUserAsync(userRequest);
+        Response<string> response = await _userService.RegisterUserAsync(userRequest);
         return Ok(response);
     }
 

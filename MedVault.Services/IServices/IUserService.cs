@@ -6,5 +6,5 @@ namespace MedVault.Services.IServices;
 
 public interface IUserService
 {
-    Task<Response<UserResponse?>> RegisterUserAsync(UserRequest userRequest);
+    Task<Response<string>> RegisterUserAsync(UserRequest userRequest);
 }
