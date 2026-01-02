@@ -1,5 +1,9 @@
+using MedVault.Models.Dtos;
 using MedVault.Services.IServices;
 using MedVault.Services.Services;
+using MedVault.Utilities.EmailServices;
+using MedVault.Utilities.Validations;
+using Microsoft.OpenApi.Models;
 
 namespace MedVault.Web.Extension;
 
@@ -8,12 +12,70 @@ public static class ServiceExtensions
     public static WebApplicationBuilder AddApplicationServices(
         this WebApplicationBuilder builder)
     {
+
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AngularPolicy", policy =>
+            {
+                policy
+                    .WithOrigins("http://localhost:4200") // Angular app
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
+
+
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+
+        builder.Services.AddSwaggerGen(
+            options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "MedVault API",
+                    Version = "v1"
+                });
+
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Enter 'Bearer' followed by your JWT token",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+
+                        Array.Empty<string>()
+                    }
+                });
+            }
+        );
+
         builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
         builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddScoped<IAuthService, AuthService>();
+
+        builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+
+        builder.Services.AddScoped<IEmailService, EmailService>();
+
+
+        builder.Services.AddScoped<JwtService>();
+
 
         return builder;
     }

@@ -14,6 +14,8 @@ public static class RepositoryExtensions
         );
 
         builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<IOtpRepository, OtpRepository>();
+
 
         return builder;
     }

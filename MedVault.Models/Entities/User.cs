@@ -30,7 +30,7 @@ public class User
     [Required, MaxLength(1000)]
     public string PasswordHash { get; set; } = null!;
 
-    public bool? IsVerified { get; set; }
+    public bool? IsVerified { get; set; } = false;
 
     public bool TwoFactorEnabled { get; set; } = false;
 

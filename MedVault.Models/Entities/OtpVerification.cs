@@ -7,16 +7,18 @@ public class OtpVerification
     [Key]
     public int Id { get; set; }
 
-    [Required, StringLength(6, MinimumLength = 6)]
-    public string Otp { get; set; } = null!;
+    [Required, MaxLength(1000)]
+    public string OtpHash { get; set; } = null!;
 
     [Required]
-    public bool IsVerify { get; set; }
+    public DateTime ExpiresAt { get; set; }
 
     [Required, ForeignKey(nameof(User))]
     public int UserId { get; set; }
 
     public User User { get; set; } = null!;
 }
+
+
 
 

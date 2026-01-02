@@ -11,6 +11,9 @@ builder.AddDatabase(builder.Configuration);
 // Repositories
 builder.AddRepositories();
 
+// JWT Authentication
+builder.AddJwtServices();
+
 var app = builder.Build();
 
 // Middleware

@@ -13,19 +13,12 @@ using Microsoft.AspNetCore.Identity;
 
 namespace MedVault.Services.Services;
 
-public class UserService : IUserService
+public class UserService(IUserRepository userRepository, IMapper mapper) : IUserService
 {
 
-    private readonly IUserRepository _userRepository;
-    private readonly PasswordHasher<User> _passwordHasher;
-     private readonly IMapper _mapper;
-
-    public UserService(IUserRepository userRepository,IMapper mapper)
-    {
-        _userRepository = userRepository;
-        _passwordHasher = new PasswordHasher<User>();
-        _mapper = mapper;
-    }
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly PasswordHasher<User> _passwordHasher = new PasswordHasher<User>();
+    private readonly IMapper _mapper = mapper;
 
     public async Task<Response<UserResponse?>> RegisterUserAsync(UserRequest userRequest)
     {
@@ -36,13 +29,7 @@ public class UserService : IUserService
 
         if (existingUser != null)
         {
-            return ResponseHelper.Response<UserResponse?>(
-                data: null,
-                succeeded: false,
-                message: ErrorMessages.AlreadyExists("Email"),
-                errors: new[] { ErrorMessages.AlreadyExists("Email") },
-                statusCode: (int)HttpStatusCode.Conflict
-            );
+            throw new ArgumentException("User is Exists");
         }
 
         // Create new user
@@ -58,7 +45,6 @@ public class UserService : IUserService
         user.PasswordHash = _passwordHasher.HashPassword(user, userRequest.Password);
 
         await _userRepository.AddAsync(user);
-        await _userRepository.SaveChangesAsync();
 
         UserResponse userResponse = _mapper.Map<UserResponse>(user);
 
