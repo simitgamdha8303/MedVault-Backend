@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using MedVault.Common.Messages;
+using MedVault.Models.Enums;
 
 namespace MedVault.Models.Dtos.RequestDtos;
 
 public class UserRequest
 {
-    // public Role Role { get; set; }
+    public Role Role { get; set; }
 
     [Required(ErrorMessage = ValidationMessages.EMAIL_REQUIRED)]
     [EmailAddress(ErrorMessage = ValidationMessages.INVALID_EMAIL)]
