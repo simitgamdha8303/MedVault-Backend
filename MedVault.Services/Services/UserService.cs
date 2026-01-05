@@ -12,10 +12,11 @@ using Microsoft.AspNetCore.Identity;
 
 namespace MedVault.Services.Services;
 
-public class UserService(IUserRepository userRepository, IMapper mapper) : IUserService
+public class UserService(IUserRepository userRepository, IMapper mapper, IUserRoleRepository userRoleRepository) : IUserService
 {
 
     private readonly IUserRepository _userRepository = userRepository;
+    private readonly IUserRoleRepository _userRoleRepository = userRoleRepository;
     private readonly PasswordHasher<User> _passwordHasher = new PasswordHasher<User>();
     private readonly IMapper _mapper = mapper;
 
@@ -23,7 +24,6 @@ public class UserService(IUserRepository userRepository, IMapper mapper) : IUser
     {
 
         // if user already exists
-        // bool userExists = await _userRepository.AnyAsync(u => u.Email == userRequest.Email && u.Role == userRequest.Role);
         bool userExists = await _userRepository.AnyAsync(u => u.Email == userRequest.Email);
 
         if (userExists)
@@ -45,6 +45,15 @@ public class UserService(IUserRepository userRepository, IMapper mapper) : IUser
         user.PasswordHash = _passwordHasher.HashPassword(user, userRequest.Password);
 
         await _userRepository.AddAsync(user);
+
+        // Assign user role
+        UserRole userRole = new UserRole
+        {
+            UserId = user.Id,
+            Role = userRequest.Role
+        };
+
+        await _userRoleRepository.AddAsync(userRole);
 
         return ResponseHelper.Response<string>(
             data: null,

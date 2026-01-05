@@ -1,16 +1,11 @@
 namespace MedVault.Models.Entities;
-using MedVault.Models.Enums;
 
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 public class User
 {
     [Key]
     public int Id { get; set; }
-
-    [Required]
-    public Role Role { get; set; }
 
     [Required, EmailAddress, MaxLength(255)]
     public string Email { get; set; } = null!;
@@ -37,6 +32,8 @@ public class User
     public DateTime? UpdatedAt { get; set; }
 
     // Navigation
+    
+    public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 
     public PatientProfile? PatientProfile { get; set; }
 

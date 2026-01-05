@@ -1,5 +1,4 @@
 using System.Net;
-using System.Text.RegularExpressions;
 using MedVault.Common.Helper;
 using MedVault.Common.Messages;
 using MedVault.Common.Response;
@@ -7,6 +6,7 @@ using MedVault.Data.IRepositories;
 using MedVault.Models.Dtos.RequestDtos;
 using MedVault.Models.Dtos.ResponseDtos;
 using MedVault.Models.Entities;
+using MedVault.Models.Enums;
 using MedVault.Services.IServices;
 using MedVault.Utilities.EmailServices;
 using MedVault.Utilities.Validations;
@@ -17,12 +17,14 @@ namespace MedVault.Services.Services;
 public class AuthService(
     IUserRepository userRepository,
     JwtService jwt,
+    IUserRoleRepository userRoleRepository,
     IOtpRepository otpRepository,
     IEmailService emailService
     ) : IAuthService
 {
     private readonly IUserRepository _userRepository = userRepository;
     private readonly JwtService _jwt = jwt;
+    private readonly IUserRoleRepository _userRoleRepository = userRoleRepository;
     private readonly IOtpRepository _otpRepository = otpRepository;
     private readonly IEmailService _emailService = emailService;
     private readonly PasswordHasher<User> _passwordHasher = new();
@@ -35,6 +37,14 @@ public class AuthService(
         if (user == null)
         {
             throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
+
+        UserRole? userRole = await _userRoleRepository.FirstOrDefaultAsync(ur => ur.UserId == user.Id && ur.Role == loginRequest.Role);
+
+        if (userRole == null)
+        {
+            string roleName = Enum.GetName(typeof(Role), loginRequest.Role) ?? "Unknown";
+            throw new ArgumentException(ErrorMessages.NotFound($"{roleName} profile"));
         }
 
         PasswordVerificationResult passwordVerificationResult = _passwordHasher.VerifyHashedPassword(
@@ -87,7 +97,7 @@ public class AuthService(
         }
 
         // login (No OTP)
-        string token = _jwt.GenerateToken(user);
+        string token = _jwt.GenerateToken(user, loginRequest.Role);
 
         return ResponseHelper.Response<LoginResponse>(
             data: new LoginResponse
@@ -138,7 +148,7 @@ public class AuthService(
         _otpRepository.Delete(otpEntry);
         await _otpRepository.SaveChangesAsync();
 
-        string token = _jwt.GenerateToken(user);
+        string token = _jwt.GenerateToken(user, request.Role);
 
         return ResponseHelper.Response<string>(
             data: token,

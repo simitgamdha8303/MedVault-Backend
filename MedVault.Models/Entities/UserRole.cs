@@ -1,0 +1,12 @@
+namespace MedVault.Models.Entities;
+
+using MedVault.Models.Enums;
+
+public class UserRole
+{
+    public int UserId { get; set; }
+    
+    public Role Role { get; set; }
+
+    public User User { get; set; } = null!;
+}

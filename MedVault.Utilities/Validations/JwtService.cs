@@ -18,13 +18,14 @@ public class JwtService
         _config = config;
     }
 
-    public string GenerateToken(User user)
+    public string GenerateToken(User user, Role role)
     {
+        
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, Enum.GetName(typeof(Role), user.Role)!),
+            new Claim(ClaimTypes.Role, Enum.GetName(typeof(Role), role)!),
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));

@@ -29,6 +29,8 @@ namespace MedVault.Data
         public DbSet<QrShare> QrShares => Set<QrShare>();
 
         public DbSet<OtpVerification> OtpVerifications => Set<OtpVerification>();
+        public DbSet<UserRole> UserRoles => Set<UserRole>();
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -49,7 +51,7 @@ namespace MedVault.Data
                 .WithOne(p => p.User)
                 .HasForeignKey<PatientProfile>(p => p.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-         
+
             // User - DoctorProfile (1–1)
             modelBuilder.Entity<User>()
                 .HasOne(u => u.DoctorProfile)
@@ -63,7 +65,15 @@ namespace MedVault.Data
                 .WithMany(h => h.Doctors)
                 .HasForeignKey(d => d.HospitalId)
                 .OnDelete(DeleteBehavior.Restrict);
-            
+
+             // UserRole (ENUM-based RBAC)
+            modelBuilder.Entity<UserRole>()
+                .HasKey(ur => new { ur.UserId, ur.Role });
+
+            modelBuilder.Entity<UserRole>()
+                .Property(ur => ur.Role)
+                .HasConversion<int>();    
+
             // PatientProfile - Reminder (1–Many)
             modelBuilder.Entity<Reminder>()
                 .HasOne(r => r.PatientProfile)
@@ -130,17 +140,30 @@ namespace MedVault.Data
                 .HasForeignKey(o => o.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-                modelBuilder.Entity<PatientProfile>()
-    .Property(p => p.DateOfBirth)
-    .HasColumnType("date");
+            modelBuilder.Entity<PatientProfile>()
+                .Property(p => p.DateOfBirth)
+                .HasColumnType("date");
 
-modelBuilder.Entity<MedicalTimeline>()
-    .Property(m => m.EventDate)
-    .HasColumnType("date");
+            modelBuilder.Entity<MedicalTimeline>()
+                .Property(m => m.EventDate)
+                .HasColumnType("date");
 
-modelBuilder.Entity<Document>()
-    .Property(d => d.DocumentDate)
-    .HasColumnType("date");
+            modelBuilder.Entity<Document>()
+                .Property(d => d.DocumentDate)
+                .HasColumnType("date");
+
+            modelBuilder.Entity<UserRole>()
+                .HasKey(ur => new { ur.UserId, ur.Role });
+
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.User)
+                .WithMany(u => u.UserRoles)
+                .HasForeignKey(ur => ur.UserId);
+
+            modelBuilder.Entity<UserRole>()
+                .Property(ur => ur.Role)
+                .HasConversion<int>();
+
 
         }
     }
