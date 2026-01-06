@@ -6,33 +6,30 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MedVault.Web.Controllers;
 
-
 [Route("api/[controller]")]
 [ApiController]
 public class AuthController(IAuthService authService) : ControllerBase
 {
-    private readonly IAuthService _authService = authService;
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest loginRequest)
     {
-        Response<LoginResponse> response = await _authService.LoginUserAsync(loginRequest);
-        return Ok(response);
+        Response<LoginResponse> loginUserResponse = await authService.LoginUserAsync(loginRequest);
+        return Ok(loginUserResponse);
     }
 
     [HttpPost("verify-otp")]
     public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpRequest request)
     {
-        Response<string> response = await _authService.VerifyOtpAsync(request);
-        return Ok(response);
+        Response<string> verifyOtpResponse = await authService.VerifyOtpAsync(request);
+        return Ok(verifyOtpResponse);
     }
 
     [HttpPost("resend-otp")]
     public async Task<IActionResult> ResendOtp(ResendOtpRequest request)
     {
-        Response<string> response = await _authService.ResendOtpAsync(request);
-        return Ok(response);
+        Response<string> resendOtpResponse = await authService.ResendOtpAsync(request);
+        return Ok(resendOtpResponse);
     }
-
 
 }

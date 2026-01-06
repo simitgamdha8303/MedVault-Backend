@@ -22,24 +22,19 @@ public class AuthService(
     IEmailService emailService
     ) : IAuthService
 {
-    private readonly IUserRepository _userRepository = userRepository;
-    private readonly JwtService _jwt = jwt;
-    private readonly IUserRoleRepository _userRoleRepository = userRoleRepository;
-    private readonly IOtpRepository _otpRepository = otpRepository;
-    private readonly IEmailService _emailService = emailService;
     private readonly PasswordHasher<User> _passwordHasher = new();
 
     public async Task<Response<LoginResponse>> LoginUserAsync(LoginRequest loginRequest)
     {
         // is user exists
-        User? user = await _userRepository.FirstOrDefaultAsync(u => u.Email == loginRequest.Email);
+        User? user = await userRepository.FirstOrDefaultAsync(u => u.Email == loginRequest.Email);
 
         if (user == null)
         {
             throw new ArgumentException(ErrorMessages.NotFound("User"));
         }
 
-        UserRole? userRole = await _userRoleRepository.FirstOrDefaultAsync(ur => ur.UserId == user.Id && ur.Role == loginRequest.Role);
+        UserRole? userRole = await userRoleRepository.FirstOrDefaultAsync(ur => ur.UserId == user.Id && ur.Role == loginRequest.Role);
 
         if (userRole == null)
         {
@@ -61,12 +56,12 @@ public class AuthService(
         //OTP
         if (user.TwoFactorEnabled || user.IsVerified == false)
         {
-            List<OtpVerification> otpEntry = (await _otpRepository.FindAsync(o => o.UserId == user.Id)).ToList();
+            List<OtpVerification> otpEntry = (await otpRepository.FindAsync(o => o.UserId == user.Id)).ToList();
 
             if (otpEntry.Any())
             {
-                _otpRepository.DeleteRange(otpEntry);
-                await _otpRepository.SaveChangesAsync();
+                otpRepository.DeleteRange(otpEntry);
+                await otpRepository.SaveChangesAsync();
             }
 
             string otp = OtpGenerator.GenerateOtp();
@@ -78,9 +73,9 @@ public class AuthService(
                 ExpiresAt = DateTime.UtcNow.AddMinutes(5)
             };
 
-            await _otpRepository.AddAsync(otpEntity);
+            await otpRepository.AddAsync(otpEntity);
 
-            await _emailService.SendOtpAsync(user.Email, otp);
+            await emailService.SendOtpAsync(user.Email, otp);
 
             return ResponseHelper.Response<LoginResponse>(
                  data: new LoginResponse
@@ -97,7 +92,7 @@ public class AuthService(
         }
 
         // login (No OTP)
-        string token = _jwt.GenerateToken(user, loginRequest.Role);
+        string token = jwt.GenerateToken(user, loginRequest.Role);
 
         return ResponseHelper.Response<LoginResponse>(
             data: new LoginResponse
@@ -115,7 +110,7 @@ public class AuthService(
 
     public async Task<Response<string>> VerifyOtpAsync(VerifyOtpRequest request)
     {
-        OtpVerification? otpEntry = await _otpRepository
+        OtpVerification? otpEntry = await otpRepository
             .FirstOrDefaultAsync(o =>
                 o.UserId == request.UserId &&
                 o.ExpiresAt > DateTime.UtcNow);
@@ -125,7 +120,7 @@ public class AuthService(
             throw new ArgumentException(ErrorMessages.Invalid("OTP"));
         }
 
-        User? user = await _userRepository.GetByIdAsync(request.UserId);
+        User? user = await userRepository.GetByIdAsync(request.UserId);
 
         if (user == null)
         {
@@ -145,10 +140,10 @@ public class AuthService(
 
         user.IsVerified = true;
 
-        _otpRepository.Delete(otpEntry);
-        await _otpRepository.SaveChangesAsync();
+        otpRepository.Delete(otpEntry);
+        await otpRepository.SaveChangesAsync();
 
-        string token = _jwt.GenerateToken(user, request.Role);
+        string token = jwt.GenerateToken(user, request.Role);
 
         return ResponseHelper.Response<string>(
             data: token,
@@ -161,7 +156,7 @@ public class AuthService(
 
     public async Task<Response<string>> ResendOtpAsync(ResendOtpRequest request)
     {
-        User? user = await _userRepository.GetByIdAsync(request.UserId);
+        User? user = await userRepository.GetByIdAsync(request.UserId);
 
         if (user == null)
         {
@@ -170,12 +165,12 @@ public class AuthService(
 
         // remove old OTPs
         List<OtpVerification> oldOtps =
-            (await _otpRepository.FindAsync(o => o.UserId == user.Id)).ToList();
+            (await otpRepository.FindAsync(o => o.UserId == user.Id)).ToList();
 
         if (oldOtps.Any())
         {
-            _otpRepository.DeleteRange(oldOtps);
-            await _otpRepository.SaveChangesAsync();
+            otpRepository.DeleteRange(oldOtps);
+            await otpRepository.SaveChangesAsync();
         }
 
         string otp = OtpGenerator.GenerateOtp();
@@ -187,9 +182,9 @@ public class AuthService(
             ExpiresAt = DateTime.UtcNow.AddMinutes(5)
         };
 
-        await _otpRepository.AddAsync(otpEntity);
+        await otpRepository.AddAsync(otpEntity);
 
-        await _emailService.SendOtpAsync(user.Email, otp);
+        await emailService.SendOtpAsync(user.Email, otp);
 
         return ResponseHelper.Response<string>(
             data: null,

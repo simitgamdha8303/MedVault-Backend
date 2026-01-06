@@ -72,6 +72,8 @@ public static class ServiceExtensions
         builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
 
         builder.Services.AddScoped<IEmailService, EmailService>();
+        builder.Services.AddScoped<IDoctorProfileService, DoctorProfileService>();
+        builder.Services.AddScoped<IPatientProfileService, PatientProfileService>();
 
 
         builder.Services.AddScoped<JwtService>();

@@ -16,6 +16,10 @@ public static class RepositoryExtensions
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IOtpRepository, OtpRepository>();
         builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+        builder.Services.AddScoped<IDoctorProfileRepository, DoctorProfileRepository>();
+        builder.Services.AddScoped<IHospitalRepository, HospitalRepository>();
+        builder.Services.AddScoped<IPatientProfileRepository, PatientProfileRepository>();
+
 
 
         return builder;

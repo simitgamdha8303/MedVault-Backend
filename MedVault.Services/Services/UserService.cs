@@ -14,24 +14,20 @@ namespace MedVault.Services.Services;
 
 public class UserService(IUserRepository userRepository, IMapper mapper, IUserRoleRepository userRoleRepository) : IUserService
 {
-
-    private readonly IUserRepository _userRepository = userRepository;
-    private readonly IUserRoleRepository _userRoleRepository = userRoleRepository;
     private readonly PasswordHasher<User> _passwordHasher = new PasswordHasher<User>();
-    private readonly IMapper _mapper = mapper;
 
     public async Task<Response<string>> RegisterUserAsync(UserRequest userRequest)
     {
 
         // if user already exists
-        bool userExists = await _userRepository.AnyAsync(u => u.Email == userRequest.Email);
+        bool userExists = await userRepository.AnyAsync(u => u.Email == userRequest.Email);
 
         if (userExists)
         {
             throw new ArgumentException(ErrorMessages.AlreadyExists("User"));
         }
 
-        bool mobileExists = await _userRepository.AnyAsync(u => u.Mobile == userRequest.Mobile);
+        bool mobileExists = await userRepository.AnyAsync(u => u.Mobile == userRequest.Mobile);
 
         if (mobileExists)
         {
@@ -39,12 +35,14 @@ public class UserService(IUserRepository userRepository, IMapper mapper, IUserRo
         }
 
         // Create new user
-        User user = _mapper.Map<User>(userRequest);
+        User user = mapper.Map<User>(userRequest);
 
         // hash password
         user.PasswordHash = _passwordHasher.HashPassword(user, userRequest.Password);
 
-        await _userRepository.AddAsync(user);
+        user.CreatedAt = DateTime.UtcNow;
+
+        await userRepository.AddAsync(user);
 
         // Assign user role
         UserRole userRole = new UserRole
@@ -53,7 +51,7 @@ public class UserService(IUserRepository userRepository, IMapper mapper, IUserRo
             Role = userRequest.Role
         };
 
-        await _userRoleRepository.AddAsync(userRole);
+        await userRoleRepository.AddAsync(userRole);
 
         return ResponseHelper.Response<string>(
             data: null,

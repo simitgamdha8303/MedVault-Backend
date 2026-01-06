@@ -8,13 +8,11 @@ namespace MedVault.Web.Controllers;
 [ApiController]
 public class UserController(IUserService userService) : ControllerBase
 {
-    private readonly IUserService _userService = userService;
-
     [HttpPost("register")]
     public async Task<IActionResult> Register(UserRequest userRequest)
     {
-        Response<string> response = await _userService.RegisterUserAsync(userRequest);
-        return Ok(response);
+        Response<string> registerUserResponse = await userService.RegisterUserAsync(userRequest);
+        return Ok(registerUserResponse);
     }
 
 }

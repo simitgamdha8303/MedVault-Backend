@@ -1,7 +1,6 @@
 using System.Net;
 using System.Text.Json;
 using MedVault.Common.Helper;
-using MedVault.Common.Response;
 
 namespace MedVault.Web.Middlewares;
 

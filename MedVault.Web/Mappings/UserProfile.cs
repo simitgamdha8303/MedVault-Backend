@@ -10,5 +10,13 @@ public class UserProfile : Profile
         CreateMap<UserRequest, User>()
             .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
 
+        CreateMap<DoctorProfileRequest, DoctorProfile>();
+
+        CreateMap<DoctorProfile, DoctorProfileResponse>();
+        
+         CreateMap<PatientProfileRequest, PatientProfile>();
+         
+        CreateMap<PatientProfile, PatientProfileResponse>();
+
     }
 }
