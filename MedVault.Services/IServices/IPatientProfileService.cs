@@ -6,8 +6,10 @@ namespace MedVault.Services.IServices;
 
 public interface IPatientProfileService
 {
-    Task<Response<string>> CreateAsync(PatientProfileRequest request);
+    Task<Response<string>> CreateAsync(PatientProfileRequest request, int userId);
     Task<Response<PatientProfileResponse>> GetByIdAsync(int id);
     Task<Response<string>> UpdateAsync(int id, PatientProfileRequest request);
     Task<Response<string>> DeleteAsync(int id);
+    Task<Response<List<EnumLookupResponse>>> GetGendersAsync();
+    Task<Response<List<EnumLookupResponse>>> GetBloodGroupsAsync();
 }

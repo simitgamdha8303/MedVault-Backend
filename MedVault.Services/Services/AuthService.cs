@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Identity;
 namespace MedVault.Services.Services;
 
 public class AuthService(
+    IDoctorProfileRepository doctorProfileRepository,
+    IPatientProfileRepository patientProfileRepository,
     IUserRepository userRepository,
     JwtService jwt,
     IUserRoleRepository userRoleRepository,
@@ -77,12 +79,13 @@ public class AuthService(
 
             await emailService.SendOtpAsync(user.Email, otp);
 
-            return ResponseHelper.Response<LoginResponse>(
+            return ResponseHelper.Response(
                  data: new LoginResponse
                  {
                      RequiresOtp = true,
                      UserId = user.Id,
-                     Token = null
+                     Token = null,
+                     RequiresProfile = false
                  },
                 succeeded: true,
                 message: SuccessMessages.OTP_SENT,
@@ -94,12 +97,24 @@ public class AuthService(
         // login (No OTP)
         string token = jwt.GenerateToken(user, loginRequest.Role);
 
-        return ResponseHelper.Response<LoginResponse>(
+        bool isProfileComplete = false;
+
+        if (userRole.Role == Role.Doctor)
+        {
+            isProfileComplete = await doctorProfileRepository.AnyAsync(u => u.UserId == user.Id);
+        }
+        else
+        {
+            isProfileComplete = await patientProfileRepository.AnyAsync(u => u.UserId == user.Id);
+        }
+
+        return ResponseHelper.Response(
             data: new LoginResponse
             {
                 RequiresOtp = false,
                 Token = token,
-                UserId = null
+                UserId = null,
+                RequiresProfile = isProfileComplete
             },
             succeeded: true,
             message: SuccessMessages.LOGIN_SUCCESS,
@@ -108,7 +123,7 @@ public class AuthService(
         );
     }
 
-    public async Task<Response<string>> VerifyOtpAsync(VerifyOtpRequest request)
+    public async Task<Response<OtpResponse>> VerifyOtpAsync(VerifyOtpRequest request)
     {
         OtpVerification? otpEntry = await otpRepository
             .FirstOrDefaultAsync(o =>
@@ -145,8 +160,23 @@ public class AuthService(
 
         string token = jwt.GenerateToken(user, request.Role);
 
-        return ResponseHelper.Response<string>(
-            data: token,
+        bool isProfileComplete = false;
+
+        if (request.Role == Role.Doctor)
+        {
+            isProfileComplete = await doctorProfileRepository.AnyAsync(u => u.UserId == user.Id);
+        }
+        else
+        {
+            isProfileComplete = await patientProfileRepository.AnyAsync(u => u.UserId == user.Id);
+        }
+
+        return ResponseHelper.Response<OtpResponse>(
+            data: new OtpResponse
+            {
+                Token = token,
+                RequiresProfile = isProfileComplete
+            },
             succeeded: true,
             message: SuccessMessages.OTP_VERIFIED,
             errors: null,

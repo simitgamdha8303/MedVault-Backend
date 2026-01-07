@@ -7,6 +7,7 @@ public static class ValidationMessages
     public const string INVALID_EMAIL = "Invalid email address.";
     public const string EMAIL_SPECIAL_CHAR = "Email cannot start with a special character.";
     public const string FIRST_NAME_REQUIRED = "FirstName is required.";
+
     public const string FIRST_NAME_ONLY_LETTERS = "FirstName must contain only letters and cannot be just spaces.";
     public const string LAST_NAME_REQUIRED = "LastName is required.";
     public const string LAST_NAME_ONLY_LETTERS = "LastName must contain only letters and cannot be just spaces.";

@@ -8,7 +8,7 @@ namespace MedVault.Services.IServices;
 public interface IAuthService
 {
     Task<Response<LoginResponse>> LoginUserAsync(LoginRequest loginRequest);
-    Task<Response<string>> VerifyOtpAsync(VerifyOtpRequest request);
+    Task<Response<OtpResponse>> VerifyOtpAsync(VerifyOtpRequest request);
     Task<Response<string>> ResendOtpAsync(ResendOtpRequest request);
 
 

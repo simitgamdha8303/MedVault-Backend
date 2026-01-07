@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using MedVault.Common.Response;
 using MedVault.Models.Dtos.RequestDtos;
 using MedVault.Models.Dtos.ResponseDtos;
@@ -8,14 +9,15 @@ using Microsoft.AspNetCore.Mvc;
 namespace MedVault.Web.Controllers;
 
 [ApiController]
-[Route("api/doctor-profiles")]
+[Route("api/doctor-profile")]
 [Authorize(Roles = "Doctor")]
 public class DoctorProfileController(IDoctorProfileService doctorProfileService) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> Create(DoctorProfileRequest doctorProfileRequest)
     {
-        Response<string> createDoctorProfileResponse = await doctorProfileService.CreateAsync(doctorProfileRequest);
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        Response<string> createDoctorProfileResponse = await doctorProfileService.CreateAsync(doctorProfileRequest, userId);
         return Ok(createDoctorProfileResponse);
     }
 
@@ -38,5 +40,12 @@ public class DoctorProfileController(IDoctorProfileService doctorProfileService)
     {
         Response<string> deleteDoctorProfileResponse = await doctorProfileService.DeleteAsync(id);
         return Ok(deleteDoctorProfileResponse);
+    }
+
+    [HttpGet("list")]
+    public async Task<IActionResult> GetAllHospital()
+    {
+        Response<List<HospitalResponse>> hospitalList = await doctorProfileService.GetAllHospitalAsync();
+        return Ok(hospitalList);
     }
 }

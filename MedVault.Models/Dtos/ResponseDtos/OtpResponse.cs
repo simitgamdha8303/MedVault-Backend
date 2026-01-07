@@ -1,9 +1,8 @@
 namespace MedVault.Models.Dtos.ResponseDtos;
 
-public class LoginResponse
+public class OtpResponse
 {
     public string? Token { get; set; }
-    public int? UserId { get; set; }
-    public bool RequiresOtp { get; set; }
     public bool RequiresProfile { get; set; }
+     
 }

@@ -7,6 +7,7 @@ using MedVault.Data.IRepositories;
 using MedVault.Models.Dtos.RequestDtos;
 using MedVault.Models.Dtos.ResponseDtos;
 using MedVault.Models.Entities;
+using MedVault.Models.Enums;
 using MedVault.Services.IServices;
 
 namespace MedVault.Services.Services;
@@ -17,17 +18,17 @@ public class PatientProfileService(
     IMapper mapper
 ) : IPatientProfileService
 {
-    public async Task<Response<string>> CreateAsync(PatientProfileRequest patientProfileRequest)
+    public async Task<Response<string>> CreateAsync(PatientProfileRequest patientProfileRequest, int userId)
     {
         // Validate User
-        bool userExists = await userRepository.AnyAsync(u => u.Id == patientProfileRequest.UserId);
+        bool userExists = await userRepository.AnyAsync(u => u.Id == userId);
         if (!userExists)
         {
             throw new ArgumentException(ErrorMessages.NotFound("User"));
         }
 
         bool patientProfileExists = await patientProfileRepository
-            .AnyAsync(p => p.UserId == patientProfileRequest.UserId);
+            .AnyAsync(p => p.UserId == userId);
 
         if (patientProfileExists)
         {
@@ -35,6 +36,7 @@ public class PatientProfileService(
         }
 
         PatientProfile patientProfile = mapper.Map<PatientProfile>(patientProfileRequest);
+        patientProfile.UserId = userId;
         patientProfile.CreatedAt = DateTime.UtcNow;
 
         await patientProfileRepository.AddAsync(patientProfile);
@@ -60,7 +62,7 @@ public class PatientProfileService(
         PatientProfileResponse patientProfileResponse =
             mapper.Map<PatientProfileResponse>(patientProfile);
 
-        return ResponseHelper.Response<PatientProfileResponse>(
+        return ResponseHelper.Response(
             data: patientProfileResponse,
             succeeded: true,
             message: SuccessMessages.ProfileRetrieved("Patient"),
@@ -109,6 +111,44 @@ public class PatientProfileService(
             data: null,
             succeeded: true,
             message: SuccessMessages.Deleted("Patient profile"),
+            errors: null,
+            statusCode: (int)HttpStatusCode.OK
+        );
+    }
+
+    public async Task<Response<List<EnumLookupResponse>>> GetGendersAsync()
+    {
+        List<EnumLookupResponse>? genders = Enum.GetValues<Gender>()
+            .Select(g => new EnumLookupResponse
+            {
+                Id = (int)g,
+                Name = g.ToString()
+            })
+            .ToList();
+
+        return ResponseHelper.Response(
+            data: genders,
+            succeeded: true,
+            message: "Genders retrieved",
+            errors: null,
+            statusCode: (int)HttpStatusCode.OK
+        );
+    }
+
+    public async Task<Response<List<EnumLookupResponse>>> GetBloodGroupsAsync()
+    {
+        List<EnumLookupResponse>? bloodGroups = Enum.GetValues<BloodGroup>()
+            .Select(b => new EnumLookupResponse
+            {
+                Id = (int)b,
+                Name = b.ToString().Replace("_", " ")
+            })
+            .ToList();
+
+        return ResponseHelper.Response(
+            data: bloodGroups,
+            succeeded: true,
+            message: "Blood groups retrieved",
             errors: null,
             statusCode: (int)HttpStatusCode.OK
         );

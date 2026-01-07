@@ -1,4 +1,5 @@
 using System.Net;
+using System.Security.Claims;
 using AutoMapper;
 using MedVault.Common.Helper;
 using MedVault.Common.Messages;
@@ -18,10 +19,11 @@ public class DoctorProfileService(
     IMapper mapper
 ) : IDoctorProfileService
 {
-    public async Task<Response<string>> CreateAsync(DoctorProfileRequest doctorProfileRequest)
+    public async Task<Response<string>> CreateAsync(DoctorProfileRequest doctorProfileRequest,int userId)
     {
+
         // Validate User
-        bool userExists = await userRepository.AnyAsync(u => u.Id == doctorProfileRequest.UserId);
+        bool userExists = await userRepository.AnyAsync(u => u.Id == userId);
         if (!userExists)
         {
             throw new ArgumentException(ErrorMessages.NotFound("User"));
@@ -34,9 +36,8 @@ public class DoctorProfileService(
             throw new ArgumentException(ErrorMessages.NotFound("Hospital"));
         }
 
-        // Prevent duplicate profile
-        bool profileAlreadyExists = await doctorProfileRepository
-            .AnyAsync(d => d.UserId == doctorProfileRequest.UserId);
+        // Prevent duplicate 
+        bool profileAlreadyExists = await doctorProfileRepository.AnyAsync(d => d.UserId == userId);
 
         if (profileAlreadyExists)
         {
@@ -44,6 +45,7 @@ public class DoctorProfileService(
         }
 
         DoctorProfile doctorProfile = mapper.Map<DoctorProfile>(doctorProfileRequest);
+        doctorProfile.UserId = userId;
         doctorProfile.CreatedAt = DateTime.UtcNow;
 
         await doctorProfileRepository.AddAsync(doctorProfile);
@@ -68,7 +70,7 @@ public class DoctorProfileService(
 
         DoctorProfileResponse doctorProfileResponse = mapper.Map<DoctorProfileResponse>(doctorProfile);
 
-        return ResponseHelper.Response<DoctorProfileResponse>(
+        return ResponseHelper.Response(
             data: doctorProfileResponse,
             succeeded: true,
             message: SuccessMessages.ProfileRetrieved("Doctor"),
@@ -89,7 +91,6 @@ public class DoctorProfileService(
         doctorProfile.HospitalId = doctorProfileRequest.HospitalId;
         doctorProfile.Specialization = doctorProfileRequest.Specialization;
         doctorProfile.LicenseNumber = doctorProfileRequest.LicenseNumber;
-        doctorProfile.IsVarified = doctorProfileRequest.IsVerified;
         doctorProfile.UpdatedAt = DateTime.UtcNow;
 
         doctorProfileRepository.Update(doctorProfile);
@@ -120,6 +121,26 @@ public class DoctorProfileService(
             data: null,
             succeeded: true,
             message: SuccessMessages.Deleted("Doctor profile"),
+            errors: null,
+            statusCode: (int)HttpStatusCode.OK
+        );
+    }
+
+    public async Task<Response<List<HospitalResponse>>> GetAllHospitalAsync()
+    {
+        IEnumerable<Hospital>? hospitals = await hospitalRepository.GetAllAsync();
+
+        if (hospitals == null)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("Hospital"));
+        }
+
+        List<HospitalResponse>? hospitalResponses = mapper.Map<List<HospitalResponse>>(hospitals);
+
+        return ResponseHelper.Response(
+            data: hospitalResponses,
+            succeeded: true,
+            message: "Hospitals retrieved",
             errors: null,
             statusCode: (int)HttpStatusCode.OK
         );

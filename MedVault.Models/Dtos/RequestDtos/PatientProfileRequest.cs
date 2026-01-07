@@ -1,12 +1,15 @@
+using System.ComponentModel.DataAnnotations;
 using MedVault.Models.Enums;
 
 namespace MedVault.Models.Dtos.RequestDtos;
 
 public class PatientProfileRequest
 {
-    public int UserId { get; set; }
+    [Required]
     public DateOnly DateOfBirth { get; set; }
+    [Required]
     public Gender Gender { get; set; }
+    [Required]
     public BloodGroup BloodGroup { get; set; }
     public string? Allergies { get; set; }
     public string? ChronicCondition { get; set; }

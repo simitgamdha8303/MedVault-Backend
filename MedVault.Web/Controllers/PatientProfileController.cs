@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using MedVault.Common.Response;
 using MedVault.Models.Dtos.RequestDtos;
 using MedVault.Models.Dtos.ResponseDtos;
@@ -8,15 +9,16 @@ using Microsoft.AspNetCore.Mvc;
 namespace MedVault.Web.Controllers;
 
 [ApiController]
-[Route("api/patient-profiles")]
+[Route("api/patient-profile")]
 [Authorize(Roles = "Patient")]
 public class PatientProfileController(IPatientProfileService patientProfileService)
     : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody]PatientProfileRequest patientProfileRequest)
+    public async Task<IActionResult> Create([FromBody] PatientProfileRequest patientProfileRequest)
     {
-        Response<string> createPatientProfileResponse = await patientProfileService.CreateAsync(patientProfileRequest);
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        Response<string> createPatientProfileResponse = await patientProfileService.CreateAsync(patientProfileRequest, userId);
         return Ok(createPatientProfileResponse);
     }
 
@@ -39,5 +41,19 @@ public class PatientProfileController(IPatientProfileService patientProfileServi
     {
         Response<string> deletePatientProfile = await patientProfileService.DeleteAsync(id);
         return Ok(deletePatientProfile);
+    }
+
+    [HttpGet("genders")]
+    public async Task<IActionResult> GetGenders()
+    {
+        Response<List<EnumLookupResponse>> response = await patientProfileService.GetGendersAsync();
+        return Ok(response);
+    }
+
+    [HttpGet("blood-groups")]
+    public async Task<IActionResult> GetBloodGroups()
+    {
+        Response<List<EnumLookupResponse>> response = await patientProfileService.GetBloodGroupsAsync();
+        return Ok(response);
     }
 }

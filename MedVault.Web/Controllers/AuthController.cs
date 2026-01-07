@@ -21,7 +21,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     [HttpPost("verify-otp")]
     public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpRequest request)
     {
-        Response<string> verifyOtpResponse = await authService.VerifyOtpAsync(request);
+        Response<OtpResponse> verifyOtpResponse = await authService.VerifyOtpAsync(request);
         return Ok(verifyOtpResponse);
     }
 
