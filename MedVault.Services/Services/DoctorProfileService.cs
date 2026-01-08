@@ -1,5 +1,4 @@
 using System.Net;
-using System.Security.Claims;
 using AutoMapper;
 using MedVault.Common.Helper;
 using MedVault.Common.Messages;
@@ -19,7 +18,7 @@ public class DoctorProfileService(
     IMapper mapper
 ) : IDoctorProfileService
 {
-    public async Task<Response<string>> CreateAsync(DoctorProfileRequest doctorProfileRequest,int userId)
+    public async Task<Response<string>> CreateAsync(DoctorProfileRequest doctorProfileRequest, int userId)
     {
 
         // Validate User
@@ -121,26 +120,6 @@ public class DoctorProfileService(
             data: null,
             succeeded: true,
             message: SuccessMessages.Deleted("Doctor profile"),
-            errors: null,
-            statusCode: (int)HttpStatusCode.OK
-        );
-    }
-
-    public async Task<Response<List<HospitalResponse>>> GetAllHospitalAsync()
-    {
-        IEnumerable<Hospital>? hospitals = await hospitalRepository.GetAllAsync();
-
-        if (hospitals == null)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("Hospital"));
-        }
-
-        List<HospitalResponse>? hospitalResponses = mapper.Map<List<HospitalResponse>>(hospitals);
-
-        return ResponseHelper.Response(
-            data: hospitalResponses,
-            succeeded: true,
-            message: "Hospitals retrieved",
             errors: null,
             statusCode: (int)HttpStatusCode.OK
         );

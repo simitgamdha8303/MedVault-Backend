@@ -8,6 +8,7 @@ public static class SuccessMessages
     private const string DELETED_TEMPLATE = "{0} deleted successfully.";
     private const string RESTORED_TEMPLATE = "{0} restored successfully.";
     private const string PROFILE_CREATED = "{0} profile created successfully.";
+    private const string CREATED = "{0} created successfully.";
     private const string PROFILE_RETRIEVED = "{0} profile retrieved successfully.";
 
     public static string Registered(string entityName) =>
@@ -24,6 +25,9 @@ public static class SuccessMessages
 
     public static string ProfileCreated(string entityName) =>
         string.Format(PROFILE_CREATED, entityName);
+
+    public static string Created(string entityName) =>
+        string.Format(CREATED, entityName);
 
     public static string ProfileRetrieved(string entityName) =>
         string.Format(PROFILE_RETRIEVED, entityName);

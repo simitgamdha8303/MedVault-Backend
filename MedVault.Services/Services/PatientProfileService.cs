@@ -115,42 +115,4 @@ public class PatientProfileService(
             statusCode: (int)HttpStatusCode.OK
         );
     }
-
-    public async Task<Response<List<EnumLookupResponse>>> GetGendersAsync()
-    {
-        List<EnumLookupResponse>? genders = Enum.GetValues<Gender>()
-            .Select(g => new EnumLookupResponse
-            {
-                Id = (int)g,
-                Name = g.ToString()
-            })
-            .ToList();
-
-        return ResponseHelper.Response(
-            data: genders,
-            succeeded: true,
-            message: "Genders retrieved",
-            errors: null,
-            statusCode: (int)HttpStatusCode.OK
-        );
-    }
-
-    public async Task<Response<List<EnumLookupResponse>>> GetBloodGroupsAsync()
-    {
-        List<EnumLookupResponse>? bloodGroups = Enum.GetValues<BloodGroup>()
-            .Select(b => new EnumLookupResponse
-            {
-                Id = (int)b,
-                Name = b.ToString().Replace("_", " ")
-            })
-            .ToList();
-
-        return ResponseHelper.Response(
-            data: bloodGroups,
-            succeeded: true,
-            message: "Blood groups retrieved",
-            errors: null,
-            statusCode: (int)HttpStatusCode.OK
-        );
-    }
 }

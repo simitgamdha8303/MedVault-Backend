@@ -13,10 +13,11 @@ public class UserProfile : Profile
         CreateMap<DoctorProfileRequest, DoctorProfile>();
 
         CreateMap<DoctorProfile, DoctorProfileResponse>();
-        
-         CreateMap<PatientProfileRequest, PatientProfile>();
-         
+
+        CreateMap<PatientProfileRequest, PatientProfile>();
+
         CreateMap<PatientProfile, PatientProfileResponse>();
 
+        
     }
 }

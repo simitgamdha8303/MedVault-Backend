@@ -41,11 +41,4 @@ public class DoctorProfileController(IDoctorProfileService doctorProfileService)
         Response<string> deleteDoctorProfileResponse = await doctorProfileService.DeleteAsync(id);
         return Ok(deleteDoctorProfileResponse);
     }
-
-    [HttpGet("list")]
-    public async Task<IActionResult> GetAllHospital()
-    {
-        Response<List<HospitalResponse>> hospitalList = await doctorProfileService.GetAllHospitalAsync();
-        return Ok(hospitalList);
-    }
 }

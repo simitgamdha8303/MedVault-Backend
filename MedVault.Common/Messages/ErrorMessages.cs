@@ -24,4 +24,7 @@ public static class ErrorMessages
 
     public const string INVALID_EMAIL_OR_PHONE =
         "Invalid email or phone number";
+
+    public const string DOCTOR_PROFILE_NOT_SELECTED =
+        "Doctor name is required when doctor profile is not selected.";
 }

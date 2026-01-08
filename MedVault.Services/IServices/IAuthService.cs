@@ -1,7 +1,6 @@
 using MedVault.Common.Response;
 using MedVault.Models.Dtos.RequestDtos;
 using MedVault.Models.Dtos.ResponseDtos;
-using Microsoft.AspNetCore.Mvc;
 
 namespace MedVault.Services.IServices;
 

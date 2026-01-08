@@ -42,18 +42,4 @@ public class PatientProfileController(IPatientProfileService patientProfileServi
         Response<string> deletePatientProfile = await patientProfileService.DeleteAsync(id);
         return Ok(deletePatientProfile);
     }
-
-    [HttpGet("genders")]
-    public async Task<IActionResult> GetGenders()
-    {
-        Response<List<EnumLookupResponse>> response = await patientProfileService.GetGendersAsync();
-        return Ok(response);
-    }
-
-    [HttpGet("blood-groups")]
-    public async Task<IActionResult> GetBloodGroups()
-    {
-        Response<List<EnumLookupResponse>> response = await patientProfileService.GetBloodGroupsAsync();
-        return Ok(response);
-    }
 }

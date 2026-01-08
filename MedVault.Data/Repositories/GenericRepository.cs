@@ -69,4 +69,14 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         await _context.SaveChangesAsync();
     }
 
+    public async Task<List<TResult>> GetListAsync<TResult>(
+        Expression<Func<T, bool>> predicate,
+        Expression<Func<T, TResult>> selector
+    )
+    {
+        IQueryable<T> query = _dbSet;
+        return await query.Where(predicate).Select(selector).ToListAsync();
+    }
+
+
 }

@@ -11,5 +11,4 @@ public interface IDoctorProfileService
     Task<Response<DoctorProfileResponse>> GetByIdAsync(int id);
     Task<Response<string>> UpdateAsync(int id, DoctorProfileRequest request);
     Task<Response<string>> DeleteAsync(int id);
-    Task<Response<List<HospitalResponse>>> GetAllHospitalAsync();
 }

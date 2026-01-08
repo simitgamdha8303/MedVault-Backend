@@ -74,6 +74,10 @@ public static class ServiceExtensions
         builder.Services.AddScoped<IEmailService, EmailService>();
         builder.Services.AddScoped<IDoctorProfileService, DoctorProfileService>();
         builder.Services.AddScoped<IPatientProfileService, PatientProfileService>();
+        builder.Services.AddScoped<IMedicalTimelineService, MedicalTimelineService>();
+        builder.Services.AddScoped<ILookupService, LookupService>();
+
+
 
 
         builder.Services.AddScoped<JwtService>();
