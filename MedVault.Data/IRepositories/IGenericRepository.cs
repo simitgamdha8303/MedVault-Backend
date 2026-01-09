@@ -9,6 +9,7 @@ public interface IGenericRepository<T> where T : class
 
     Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
     Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
+    Task<TResult?> FirstOrDefaultAsync<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector);
 
     Task AddAsync(T entity);
     void Update(T entity);

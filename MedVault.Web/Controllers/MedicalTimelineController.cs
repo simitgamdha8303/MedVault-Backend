@@ -24,7 +24,6 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
         return Ok(timelineCreateResponse);
     }
 
-
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -46,10 +45,11 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
         return Ok(timelineDeleteResponse);
     }
 
-    [HttpGet("patient/{patientId:int}")]
-    public async Task<IActionResult> GetByPatientId(int patientId)
+    [HttpPost("patient")]
+    public async Task<IActionResult> GetByPatientId([FromBody] TimelineSearchFilterRequest searchRequest)
     {
-        Response<List<MedicalTimelineResponse>> timelineByPatientIdResponse = await medicalTimelineService.GetByPatientIdAsync(patientId);
+         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        Response<List<MedicalTimelineResponse>> timelineByPatientIdResponse = await medicalTimelineService.GetFilteredAsync(userId, searchRequest);
         return Ok(timelineByPatientIdResponse);
     }
 

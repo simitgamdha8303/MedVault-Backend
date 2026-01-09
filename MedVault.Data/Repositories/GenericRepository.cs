@@ -78,5 +78,8 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return await query.Where(predicate).Select(selector).ToListAsync();
     }
 
-
+    public async Task<TResult?> FirstOrDefaultAsync<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector)
+    {
+         return await _dbSet.Where(predicate).Select(selector).FirstOrDefaultAsync();
+    }
 }

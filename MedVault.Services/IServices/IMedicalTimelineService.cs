@@ -10,5 +10,5 @@ public interface IMedicalTimelineService
     Task<Response<MedicalTimelineResponse>> GetByIdAsync(int id);
     Task<Response<string>> UpdateAsync(int id, MedicalTimelineRequest medicalTimelineRequest);
     Task<Response<string>> DeleteAsync(int id);
-    Task<Response<List<MedicalTimelineResponse>>> GetByPatientIdAsync(int patientId);
+    Task<Response<List<MedicalTimelineResponse>>> GetFilteredAsync(int userId, TimelineSearchFilterRequest searchRequest);
 }

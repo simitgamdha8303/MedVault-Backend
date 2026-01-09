@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using System.Net;
 using AutoMapper;
 using Humanizer;
@@ -64,17 +65,27 @@ public class MedicalTimelineService(
 
     public async Task<Response<MedicalTimelineResponse>> GetByIdAsync(int id)
     {
-        MedicalTimeline? timeline = await medicalTimelineRepository.GetByIdAsync(id);
+        MedicalTimelineResponse? timelineResponse = await medicalTimelineRepository.FirstOrDefaultAsync(
+    x => x.Id == id,
+    X => new MedicalTimelineResponse
+    {
+        Id = X.Id,
+        PatientId = X.PatientId,
+        DoctorProfileId = X.DoctorProfileId,
+        CheckupTypeId = X.CheckupType,
+        DoctorName = X.DoctorName,
+        CheckupType = X.CheckupType.ToString(),
+        EventDate = X.EventDate,
+        Notes = X.Notes,
+    });
 
-        if (timeline == null)
+        if (timelineResponse == null)
         {
             throw new ArgumentException(ErrorMessages.NotFound("Medical timeline"));
         }
 
-        MedicalTimelineResponse medicalTimelineResponse = mapper.Map<MedicalTimelineResponse>(timeline);
-
         return ResponseHelper.Response(
-            data: medicalTimelineResponse,
+            data: timelineResponse,
             succeeded: true,
             message: SuccessMessages.RETRIEVED,
             errors: null,
@@ -131,14 +142,41 @@ public class MedicalTimelineService(
         );
     }
 
-    public async Task<Response<List<MedicalTimelineResponse>>> GetByPatientIdAsync(int patientId)
+    public async Task<Response<List<MedicalTimelineResponse>>> GetFilteredAsync(int userId, TimelineSearchFilterRequest searchRequest)
     {
-        IEnumerable<MedicalTimeline> timelines = await medicalTimelineRepository.FindAsync(t => t.PatientId == patientId);
+        PatientProfile? patientProfile = await patientProfileRepository.FirstOrDefaultAsync(p => p.UserId == userId);
+        if (patientProfile == null)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("Patient"));
+        }
 
-        List<MedicalTimelineResponse> response = mapper.Map<List<MedicalTimelineResponse>>(timelines);
+        Expression<Func<MedicalTimeline, bool>> predicate =
+            x => x.PatientId == patientProfile.Id
+                && (!searchRequest.CheckupType.HasValue
+                    || x.CheckupType == searchRequest.CheckupType.Value)
+                && (!searchRequest.DoctorProfileId.HasValue
+                    || x.DoctorProfileId == searchRequest.DoctorProfileId.Value)
+                && (!searchRequest.FromDate.HasValue
+                    || x.EventDate >= searchRequest.FromDate.Value)
+                && (!searchRequest.ToDate.HasValue
+                    || x.EventDate <= searchRequest.ToDate.Value);
+
+        List<MedicalTimelineResponse> timelines = await medicalTimelineRepository.GetListAsync(
+            predicate,
+            X => new MedicalTimelineResponse
+            {
+                Id = X.Id,
+                PatientId = X.PatientId,
+                DoctorProfileName = X.DoctorProfile != null ? X.DoctorProfile.User.FirstName + " " + X.DoctorProfile.User.LastName : null,
+                DoctorName = X.DoctorName,
+                CheckupType = X.CheckupType.ToString(),
+                EventDate = X.EventDate,
+                Notes = X.Notes,
+            }
+        );
 
         return ResponseHelper.Response(
-            data: response,
+            data: timelines,
             succeeded: true,
             message: "Medical timeline retrieved",
             errors: null,

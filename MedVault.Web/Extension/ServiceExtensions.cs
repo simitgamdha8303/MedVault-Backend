@@ -1,8 +1,11 @@
+using CloudinaryDotNet;
+using MedVault.Models;
 using MedVault.Models.Dtos;
 using MedVault.Services.IServices;
 using MedVault.Services.Services;
 using MedVault.Utilities.EmailServices;
 using MedVault.Utilities.Validations;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
 namespace MedVault.Web.Extension;
@@ -77,10 +80,26 @@ public static class ServiceExtensions
         builder.Services.AddScoped<IMedicalTimelineService, MedicalTimelineService>();
         builder.Services.AddScoped<ILookupService, LookupService>();
 
-
-
-
         builder.Services.AddScoped<JwtService>();
+
+        builder.Services.Configure<CloudinarySettingsResponse>(
+    builder.Configuration.GetSection("Cloudinary"));
+
+        builder.Services.AddSingleton<Cloudinary>(sp =>
+        {
+            var settings = sp
+                .GetRequiredService<IOptions<CloudinarySettingsResponse>>()
+                .Value;
+
+            var account = new Account(
+                settings.CloudName,
+                settings.ApiKey,
+                settings.ApiSecret
+            );
+
+            return new Cloudinary(account);
+        });
+
 
 
         return builder;
