@@ -6,7 +6,11 @@ public class PatientProfileResponse
 {
     public DateOnly DateOfBirth { get; set; }
     public Gender Gender { get; set; }
+    public string? GenderValue { get; set; }
+
     public BloodGroup BloodGroup { get; set; }
+    public string? BloodGroupValue { get; set; }
+
     public string? Allergies { get; set; }
     public string? ChronicCondition { get; set; }
     public string? EmergencyContactName { get; set; }

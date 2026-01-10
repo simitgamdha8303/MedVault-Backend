@@ -80,6 +80,12 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
     public async Task<TResult?> FirstOrDefaultAsync<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector)
     {
-         return await _dbSet.Where(predicate).Select(selector).FirstOrDefaultAsync();
+        return await _dbSet.Where(predicate).Select(selector).FirstOrDefaultAsync();
     }
+
+    public IQueryable<T> Query()
+    {
+        return _dbSet.AsQueryable();
+    }
+
 }
