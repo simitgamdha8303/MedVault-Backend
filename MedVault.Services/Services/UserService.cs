@@ -153,6 +153,4 @@ public class UserService(IUserRepository userRepository, IMapper mapper, IUserRo
             statusCode: (int)HttpStatusCode.OK
         );
     }
-
-
 }
