@@ -18,6 +18,28 @@ public class UserProfile : Profile
 
         CreateMap<PatientProfile, PatientProfileResponse>();
 
-        
+        // 🔹 USER UPDATE
+        CreateMap<UpdateUserProfileRequest, User>()
+            .ForMember(d => d.Id, o => o.Ignore())
+            .ForMember(d => d.Email, o => o.Ignore())
+            .ForMember(d => d.PasswordHash, o => o.Ignore())
+            .ForMember(d => d.CreatedAt, o => o.Ignore())
+            .ForMember(d => d.UserRoles, o => o.Ignore())
+            .ForMember(d => d.DoctorProfile, o => o.Ignore())
+            .ForMember(d => d.PatientProfile, o => o.Ignore());
+
+        // 🔹 DOCTOR UPDATE
+        CreateMap<UpdateUserProfileRequest, DoctorProfile>()
+            .ForMember(d => d.Id, o => o.Ignore())
+            .ForMember(d => d.UserId, o => o.Ignore())
+            .ForMember(d => d.CreatedAt, o => o.Ignore());
+
+        // 🔹 PATIENT UPDATE
+        CreateMap<UpdateUserProfileRequest, PatientProfile>()
+            .ForMember(d => d.Id, o => o.Ignore())
+            .ForMember(d => d.UserId, o => o.Ignore())
+            .ForMember(d => d.CreatedAt, o => o.Ignore());
+
+
     }
 }

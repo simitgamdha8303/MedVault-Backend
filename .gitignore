@@ -18,6 +18,10 @@ appsettings.Production.json
 *.userosscache
 *.sln.docstates
 
+# Local development settings
+appsettings.json
+
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

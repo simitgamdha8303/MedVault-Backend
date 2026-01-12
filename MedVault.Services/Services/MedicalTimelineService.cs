@@ -150,16 +150,32 @@ public class MedicalTimelineService(
             throw new ArgumentException(ErrorMessages.NotFound("Patient"));
         }
 
+        string doctor = searchRequest.Doctor?.Trim().ToLower() ?? "";
+
         Expression<Func<MedicalTimeline, bool>> predicate =
-            x => x.PatientId == patientProfile.Id
-                && (!searchRequest.CheckupType.HasValue
-                    || x.CheckupType == searchRequest.CheckupType.Value)
-                && (!searchRequest.DoctorProfileId.HasValue
-                    || x.DoctorProfileId == searchRequest.DoctorProfileId.Value)
-                && (!searchRequest.FromDate.HasValue
-                    || x.EventDate >= searchRequest.FromDate.Value)
-                && (!searchRequest.ToDate.HasValue
-                    || x.EventDate <= searchRequest.ToDate.Value);
+    x => x.PatientId == patientProfile.Id
+
+        && (!searchRequest.CheckupType.HasValue
+            || x.CheckupType == searchRequest.CheckupType.Value)
+
+        && (
+            string.IsNullOrWhiteSpace(doctor)
+            || (
+                (x.DoctorProfile != null &&
+                 (
+                     x.DoctorProfile.User.FirstName.ToLower().Contains(doctor) ||
+                     x.DoctorProfile.User.LastName.ToLower().Contains(doctor)
+                 ))
+                || (x.DoctorName != null &&
+                    x.DoctorName.ToLower().Contains(doctor))
+            )
+        )
+
+        && (!searchRequest.FromDate.HasValue
+            || x.EventDate >= searchRequest.FromDate.Value)
+
+        && (!searchRequest.ToDate.HasValue
+            || x.EventDate <= searchRequest.ToDate.Value);
 
         List<MedicalTimelineResponse> timelines = await medicalTimelineRepository.GetListAsync(
             predicate,

@@ -41,5 +41,17 @@ public class UserController(IUserService userService) : ControllerBase
         return Ok(twoFactorResponse);
     }
 
+    [HttpPut("profile")]
+    [Authorize]
+    public async Task<IActionResult> UpdateProfile(UpdateUserProfileRequest updateUserProfileRequest)
+    {
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        Response<bool> updateProfileResponse = await userService.UpdateProfileAsync(userId, updateUserProfileRequest);
+
+        return Ok(updateProfileResponse);
+    }
+
+
 
 }

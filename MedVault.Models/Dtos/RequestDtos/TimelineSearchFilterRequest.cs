@@ -7,7 +7,7 @@ public class TimelineSearchFilterRequest
 
     public CheckupType? CheckupType { get; set; }
 
-    public int? DoctorProfileId { get; set; }
+    public string? Doctor { get; set; }
 
     public DateOnly? FromDate { get; set; }
 

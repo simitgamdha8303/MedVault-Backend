@@ -7,6 +7,7 @@ using MedVault.Data.IRepositories;
 using MedVault.Models.Dtos.RequestDtos;
 using MedVault.Models.Dtos.ResponseDtos;
 using MedVault.Models.Entities;
+using MedVault.Models.Enums;
 using MedVault.Services.IServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -100,14 +101,17 @@ public class UserService(IUserRepository userRepository, IMapper mapper, IUserRo
             {
                 Specialization = user.DoctorProfile.Specialization,
                 LicenseNumber = user.DoctorProfile.LicenseNumber,
-                HospitalName = user.DoctorProfile.Hospital.Name
+                HospitalName = user.DoctorProfile.Hospital.Name,
+                HospitalId = user.DoctorProfile.Hospital.Id
             },
 
             PatientProfile = user.PatientProfile == null ? null : new PatientProfileResponse
             {
                 DateOfBirth = user.PatientProfile.DateOfBirth,
                 GenderValue = user.PatientProfile.Gender.ToString(),
+                Gender = user.PatientProfile.Gender,
                 BloodGroupValue = user.PatientProfile.BloodGroup.ToString(),
+                BloodGroup = user.PatientProfile.BloodGroup,
                 Allergies = user.PatientProfile.Allergies,
                 ChronicCondition = user.PatientProfile.ChronicCondition,
                 EmergencyContactName = user.PatientProfile.EmergencyContactName,
@@ -153,4 +157,66 @@ public class UserService(IUserRepository userRepository, IMapper mapper, IUserRo
             statusCode: (int)HttpStatusCode.OK
         );
     }
+
+    public async Task<Response<bool>> UpdateProfileAsync(int userId, UpdateUserProfileRequest updateUserProfileRequest)
+    {
+        bool mobileExists = await userRepository.AnyAsync(u => u.Mobile == updateUserProfileRequest.Mobile && u.Email != updateUserProfileRequest.Email);
+
+        if (mobileExists)
+        {
+            throw new ArgumentException(ErrorMessages.AlreadyExists("Mobile"));
+        }
+
+        User? user = await userRepository.Query()
+            .Include(u => u.DoctorProfile)
+            .Include(u => u.PatientProfile)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null)
+        {
+            return ResponseHelper.Response(
+                data: false,
+                succeeded: false,
+                message: ErrorMessages.NotFound("User"),
+                errors: null,
+                statusCode: (int)HttpStatusCode.NotFound
+            );
+        }
+
+        // Update User
+        mapper.Map(updateUserProfileRequest, user);
+        user.UpdatedAt = DateTime.UtcNow;
+
+        // Update Doctor (if exists)
+        if (user.DoctorProfile != null)
+        {
+            mapper.Map(updateUserProfileRequest, user.DoctorProfile);
+            user.DoctorProfile.UpdatedAt = DateTime.UtcNow;
+        }
+
+        // Update Patient (if exists)
+        if (user.PatientProfile != null)
+        {
+            mapper.Map(updateUserProfileRequest, user.PatientProfile);
+
+            if (updateUserProfileRequest.Gender.HasValue)
+                user.PatientProfile.Gender = (Gender)updateUserProfileRequest.Gender.Value;
+
+            if (updateUserProfileRequest.BloodGroup.HasValue)
+                user.PatientProfile.BloodGroup = (BloodGroup)updateUserProfileRequest.BloodGroup.Value;
+
+            user.PatientProfile.UpdatedAt = DateTime.UtcNow;
+        }
+
+        await userRepository.SaveChangesAsync();
+
+        return ResponseHelper.Response(
+            data: true,
+            succeeded: true,
+            message: SuccessMessages.Updated("Profile"),
+            errors: null,
+            statusCode: (int)HttpStatusCode.OK
+        );
+    }
+
 }

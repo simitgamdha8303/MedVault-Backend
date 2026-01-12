@@ -48,22 +48,8 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
     [HttpPost("patient")]
     public async Task<IActionResult> GetByPatientId([FromBody] TimelineSearchFilterRequest searchRequest)
     {
-         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         Response<List<MedicalTimelineResponse>> timelineByPatientIdResponse = await medicalTimelineService.GetFilteredAsync(userId, searchRequest);
         return Ok(timelineByPatientIdResponse);
-    }
-
-    [HttpGet("checkup-types")]
-    public IActionResult GetCheckupTypes()
-    {
-        var values = Enum.GetValues(typeof(CheckupType))
-            .Cast<CheckupType>()
-            .Select(e => new
-            {
-                id = (int)e,
-                name = e.ToString()
-            });
-
-        return Ok(values);
     }
 }
