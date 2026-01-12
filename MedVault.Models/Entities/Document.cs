@@ -1,6 +1,8 @@
 namespace MedVault.Models.Entities;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using MedVault.Models.Enums;
+
 
 public class Document
 {
@@ -16,10 +18,10 @@ public class Document
     [Required, Url]
     public string FileUrl { get; set; } = null!;
 
-    [Required, ForeignKey(nameof(DocumentType))]
-    public int DocumentTypeId { get; set; }
+    [Required]
+    public DocumentType DocumentType { get; set; }
 
-    [Required, ForeignKey(nameof(MedicalTimeline))]
+    [Required]
     public int MedicalTimelineId { get; set; }
 
     [Required]
@@ -34,7 +36,5 @@ public class Document
 
     public PatientProfile Patient { get; set; } = null!;
 
-    public DocumentType DocumentType { get; set; } = null!;
-    
     public MedicalTimeline MedicalTimeline { get; set; } = null!;
 }

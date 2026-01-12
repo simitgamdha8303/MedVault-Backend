@@ -5,6 +5,7 @@ public static class SuccessMessages
 
     private const string REGISTERED_TEMPLATE = "{0} registered successfully.";
     private const string UPDATED_TEMPLATE = "{0} updated successfully.";
+    private const string UPLOAD_TEMPLATE = "{0} uploaded successfully.";
     private const string DELETED_TEMPLATE = "{0} deleted successfully.";
     private const string RESTORED_TEMPLATE = "{0} restored successfully.";
     private const string PROFILE_CREATED = "{0} profile created successfully.";
@@ -16,6 +17,9 @@ public static class SuccessMessages
 
     public static string Updated(string entityName) =>
         string.Format(UPDATED_TEMPLATE, entityName);
+
+    public static string Upload(string entityName) =>
+        string.Format(UPLOAD_TEMPLATE, entityName);
 
     public static string Deleted(string entityName) =>
         string.Format(DELETED_TEMPLATE, entityName);

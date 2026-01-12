@@ -24,7 +24,6 @@ namespace MedVault.Data
         public DbSet<MedicalTimeline> MedicalTimelines => Set<MedicalTimeline>();
 
         public DbSet<Document> Documents => Set<Document>();
-        public DbSet<DocumentType> DocumentTypes => Set<DocumentType>();
 
         public DbSet<QrShare> QrShares => Set<QrShare>();
 
@@ -66,13 +65,13 @@ namespace MedVault.Data
                 .HasForeignKey(d => d.HospitalId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-             // UserRole (ENUM-based RBAC)
+            // UserRole (ENUM-based RBAC)
             modelBuilder.Entity<UserRole>()
                 .HasKey(ur => new { ur.UserId, ur.Role });
 
             modelBuilder.Entity<UserRole>()
                 .Property(ur => ur.Role)
-                .HasConversion<int>();    
+                .HasConversion<int>();
 
             // PatientProfile - Reminder (1–Many)
             modelBuilder.Entity<Reminder>()
@@ -109,16 +108,11 @@ namespace MedVault.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Document>()
-                .HasOne(d => d.DocumentType)
-                .WithMany()
-                .HasForeignKey(d => d.DocumentTypeId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Document>()
                 .HasOne(d => d.MedicalTimeline)
-                .WithMany()
+                .WithMany(m => m.Documents)
                 .HasForeignKey(d => d.MedicalTimelineId)
                 .OnDelete(DeleteBehavior.Cascade);
+
 
             // QR Share
             modelBuilder.Entity<QrShare>()

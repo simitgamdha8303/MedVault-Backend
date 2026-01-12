@@ -20,7 +20,7 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
     public async Task<IActionResult> Create([FromBody] MedicalTimelineRequest medicalTimelineRequest)
     {
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        Response<string> timelineCreateResponse = await medicalTimelineService.CreateAsync(medicalTimelineRequest, userId);
+        Response<int> timelineCreateResponse = await medicalTimelineService.CreateAsync(medicalTimelineRequest, userId);
         return Ok(timelineCreateResponse);
     }
 
@@ -34,7 +34,7 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, MedicalTimelineRequest medicalTimelineRequest)
     {
-        Response<string> timelineUpdateResponse = await medicalTimelineService.UpdateAsync(id, medicalTimelineRequest);
+        Response<int> timelineUpdateResponse = await medicalTimelineService.UpdateAsync(id, medicalTimelineRequest);
         return Ok(timelineUpdateResponse);
     }
 
@@ -51,5 +51,15 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         Response<List<MedicalTimelineResponse>> timelineByPatientIdResponse = await medicalTimelineService.GetFilteredAsync(userId, searchRequest);
         return Ok(timelineByPatientIdResponse);
+    }
+
+    [HttpPost("patient-document")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> Create([FromBody] DocumentRequest documentRequest)
+    {
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        Response<int> addDocumentResponse = await medicalTimelineService.AddDocumentAsync(documentRequest, userId);
+        return Ok(addDocumentResponse);
     }
 }

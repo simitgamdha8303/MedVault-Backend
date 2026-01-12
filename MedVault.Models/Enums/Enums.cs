@@ -35,3 +35,11 @@ public enum Role
     Patient
 }
 
+public enum DocumentType
+{
+    Jpg,
+    Png,
+    Pdf
+
+}
+

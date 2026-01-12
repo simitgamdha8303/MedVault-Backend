@@ -9,7 +9,9 @@ using MedVault.Data.IRepositories;
 using MedVault.Models.Dtos.RequestDtos;
 using MedVault.Models.Dtos.ResponseDtos;
 using MedVault.Models.Entities;
+using MedVault.Models.Enums;
 using MedVault.Services.IServices;
+using MedVault.Utilities;
 
 namespace MedVault.Services.Services;
 
@@ -17,10 +19,11 @@ public class MedicalTimelineService(
     IMedicalTimelineRepository medicalTimelineRepository,
     IPatientProfileRepository patientProfileRepository,
     IDoctorProfileRepository doctorProfileRepository,
+    IDocumentRepository documentRepository,
     IMapper mapper
 ) : IMedicalTimelineService
 {
-    public async Task<Response<string>> CreateAsync(MedicalTimelineRequest medicalTimelineRequest, int userId)
+    public async Task<Response<int>> CreateAsync(MedicalTimelineRequest medicalTimelineRequest, int userId)
     {
 
         PatientProfile? patientProfile = await patientProfileRepository.FirstOrDefaultAsync(p => p.UserId == userId);
@@ -54,8 +57,8 @@ public class MedicalTimelineService(
 
         await medicalTimelineRepository.AddAsync(timeline);
 
-        return ResponseHelper.Response<string>(
-            data: null,
+        return ResponseHelper.Response<int>(
+            data: timeline.Id,
             succeeded: true,
             message: SuccessMessages.Created("Medical timeline"),
             errors: null,
@@ -77,6 +80,13 @@ public class MedicalTimelineService(
         CheckupType = X.CheckupType.ToString(),
         EventDate = X.EventDate,
         Notes = X.Notes,
+        DocumentResponses = X.Documents.Select(
+            d => new DocumentResponse
+            {
+                FileName = d.FileName,
+                FileUrl = d.FileUrl
+            }
+        ).ToList()
     });
 
         if (timelineResponse == null)
@@ -93,7 +103,7 @@ public class MedicalTimelineService(
         );
     }
 
-    public async Task<Response<string>> UpdateAsync(int id, MedicalTimelineRequest medicalTimelineRequest)
+    public async Task<Response<int>> UpdateAsync(int id, MedicalTimelineRequest medicalTimelineRequest)
     {
         MedicalTimeline? timeline = await medicalTimelineRepository.GetByIdAsync(id);
 
@@ -112,8 +122,8 @@ public class MedicalTimelineService(
         medicalTimelineRepository.Update(timeline);
         await medicalTimelineRepository.SaveChangesAsync();
 
-        return ResponseHelper.Response<string>(
-            data: null,
+        return ResponseHelper.Response<int>(
+            data: timeline.Id,
             succeeded: true,
             message: SuccessMessages.Updated("Medical timeline"),
             errors: null,
@@ -199,4 +209,43 @@ public class MedicalTimelineService(
             statusCode: (int)HttpStatusCode.OK
         );
     }
+
+    public async Task<Response<int>> AddDocumentAsync(DocumentRequest documentRequest, int userId)
+    {
+        PatientProfile? patient = await patientProfileRepository
+            .FirstOrDefaultAsync(p => p.UserId == userId);
+
+        if (patient == null)
+            throw new ArgumentException(ErrorMessages.NotFound("Patient"));
+
+        bool timelineExists = await medicalTimelineRepository
+            .AnyAsync(t => t.Id == documentRequest.MedicalTimelineId && t.PatientId == patient.Id);
+
+        if (!timelineExists)
+            throw new ArgumentException(ErrorMessages.NotFound("Medical Timeline"));
+
+        DocumentType documentType = DocumentTypeHelper.Detect(documentRequest.FileName);
+
+        Document document = new()
+        {
+            PatientId = patient.Id,
+            MedicalTimelineId = documentRequest.MedicalTimelineId,
+            FileName = documentRequest.FileName,
+            FileUrl = documentRequest.FileUrl,
+            DocumentType = documentType,
+            DocumentDate = documentRequest.DocumentDate,
+            UploadedAt = DateTime.UtcNow
+        };
+
+        await documentRepository.AddAsync(document);
+
+        return ResponseHelper.Response(
+            data: document.Id,
+            succeeded: true,
+            message: SuccessMessages.Upload("Document"),
+            errors: null,
+            statusCode: 200
+        );
+    }
 }
+

@@ -35,6 +35,8 @@ public class MedicalTimeline
 
     public PatientProfile PatientProfile { get; set; } = null!;
 
+    public ICollection<Document> Documents { get; set; } = new List<Document>();
+
     public DoctorProfile? DoctorProfile { get; set; }
 }
 

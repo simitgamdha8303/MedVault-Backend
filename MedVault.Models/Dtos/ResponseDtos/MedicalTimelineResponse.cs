@@ -24,4 +24,6 @@ public class MedicalTimelineResponse
     public DateTime CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
+
+    public List<DocumentResponse>? DocumentResponses { get; set; }
 }

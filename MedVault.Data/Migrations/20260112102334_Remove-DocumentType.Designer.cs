@@ -3,6 +3,7 @@ using System;
 using MedVault.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MedVault.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260112102334_Remove-DocumentType")]
+    partial class RemoveDocumentType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -76,7 +79,7 @@ namespace MedVault.Data.Migrations
                     b.Property<DateOnly>("DocumentDate")
                         .HasColumnType("date");
 
-                    b.Property<int>("DocumentType")
+                    b.Property<int>("DocumentTypeId")
                         .HasColumnType("integer");
 
                     b.Property<string>("FileName")
@@ -102,11 +105,31 @@ namespace MedVault.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DocumentTypeId");
+
                     b.HasIndex("MedicalTimelineId");
 
                     b.HasIndex("PatientId");
 
                     b.ToTable("Documents");
+                });
+
+            modelBuilder.Entity("MedVault.Models.Entities.DocumentType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DocumentType");
                 });
 
             modelBuilder.Entity("MedVault.Models.Entities.Hospital", b =>
@@ -432,8 +455,14 @@ namespace MedVault.Data.Migrations
 
             modelBuilder.Entity("MedVault.Models.Entities.Document", b =>
                 {
+                    b.HasOne("MedVault.Models.Entities.DocumentType", "DocumentType")
+                        .WithMany()
+                        .HasForeignKey("DocumentTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("MedVault.Models.Entities.MedicalTimeline", "MedicalTimeline")
-                        .WithMany("Documents")
+                        .WithMany()
                         .HasForeignKey("MedicalTimelineId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -443,6 +472,8 @@ namespace MedVault.Data.Migrations
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("DocumentType");
 
                     b.Navigation("MedicalTimeline");
 
@@ -541,11 +572,6 @@ namespace MedVault.Data.Migrations
             modelBuilder.Entity("MedVault.Models.Entities.Hospital", b =>
                 {
                     b.Navigation("Doctors");
-                });
-
-            modelBuilder.Entity("MedVault.Models.Entities.MedicalTimeline", b =>
-                {
-                    b.Navigation("Documents");
                 });
 
             modelBuilder.Entity("MedVault.Models.Entities.PatientProfile", b =>

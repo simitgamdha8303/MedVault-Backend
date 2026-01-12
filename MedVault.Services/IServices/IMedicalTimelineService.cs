@@ -6,9 +6,10 @@ namespace MedVault.Services.IServices;
 
 public interface IMedicalTimelineService
 {
-    Task<Response<string>> CreateAsync(MedicalTimelineRequest medicalTimelineRequest, int userId);
+    Task<Response<int>> CreateAsync(MedicalTimelineRequest medicalTimelineRequest, int userId);
     Task<Response<MedicalTimelineResponse>> GetByIdAsync(int id);
-    Task<Response<string>> UpdateAsync(int id, MedicalTimelineRequest medicalTimelineRequest);
+    Task<Response<int>> UpdateAsync(int id, MedicalTimelineRequest medicalTimelineRequest);
     Task<Response<string>> DeleteAsync(int id);
     Task<Response<List<MedicalTimelineResponse>>> GetFilteredAsync(int userId, TimelineSearchFilterRequest searchRequest);
+    Task<Response<int>> AddDocumentAsync(DocumentRequest request, int userId);
 }

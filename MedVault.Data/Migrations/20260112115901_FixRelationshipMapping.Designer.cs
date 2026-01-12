@@ -3,6 +3,7 @@ using System;
 using MedVault.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MedVault.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260112115901_FixRelationshipMapping")]
+    partial class FixRelationshipMapping
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -91,6 +94,9 @@ namespace MedVault.Data.Migrations
                     b.Property<int>("MedicalTimelineId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("MedicalTimelineId1")
+                        .HasColumnType("integer");
+
                     b.Property<int>("PatientId")
                         .HasColumnType("integer");
 
@@ -103,6 +109,8 @@ namespace MedVault.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("MedicalTimelineId");
+
+                    b.HasIndex("MedicalTimelineId1");
 
                     b.HasIndex("PatientId");
 
@@ -433,10 +441,14 @@ namespace MedVault.Data.Migrations
             modelBuilder.Entity("MedVault.Models.Entities.Document", b =>
                 {
                     b.HasOne("MedVault.Models.Entities.MedicalTimeline", "MedicalTimeline")
-                        .WithMany("Documents")
+                        .WithMany()
                         .HasForeignKey("MedicalTimelineId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("MedVault.Models.Entities.MedicalTimeline", null)
+                        .WithMany("Documents")
+                        .HasForeignKey("MedicalTimelineId1");
 
                     b.HasOne("MedVault.Models.Entities.PatientProfile", "Patient")
                         .WithMany("Documents")
