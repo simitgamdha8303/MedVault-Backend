@@ -17,6 +17,11 @@ public class PatientProfileController(IPatientProfileService patientProfileServi
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] PatientProfileRequest patientProfileRequest)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         Response<string> createPatientProfileResponse = await patientProfileService.CreateAsync(patientProfileRequest, userId);
         return Ok(createPatientProfileResponse);
@@ -32,6 +37,11 @@ public class PatientProfileController(IPatientProfileService patientProfileServi
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, PatientProfileRequest patientProfileRequest)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
         Response<string> updatePatientProfileResponse = await patientProfileService.UpdateAsync(id, patientProfileRequest);
         return Ok(updatePatientProfileResponse);
     }

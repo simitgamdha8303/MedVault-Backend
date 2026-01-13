@@ -189,7 +189,7 @@ public class MedicalTimelineService(
         && (!searchRequest.ToDate.HasValue
             || x.EventDate <= searchRequest.ToDate.Value);
 
-        List<MedicalTimelineResponse> timelines = await medicalTimelineRepository.GetListAsync(
+        List<MedicalTimelineResponse> timelines = (await medicalTimelineRepository.GetListAsync(
             predicate,
             X => new MedicalTimelineResponse
             {
@@ -210,7 +210,10 @@ public class MedicalTimelineService(
                     }
                 ).ToList()
             }
-        );
+        ))
+        .OrderByDescending(x => x.EventDate)
+        .ToList();
+
 
         return ResponseHelper.Response(
             data: timelines,

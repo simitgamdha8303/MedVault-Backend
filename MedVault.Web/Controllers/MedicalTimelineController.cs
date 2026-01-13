@@ -18,6 +18,12 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
     [Authorize(Roles = "Patient")]
     public async Task<IActionResult> Create([FromBody] MedicalTimelineRequest medicalTimelineRequest)
     {
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         Response<int> timelineCreateResponse = await medicalTimelineService.CreateAsync(medicalTimelineRequest, userId);
         return Ok(timelineCreateResponse);
@@ -33,6 +39,11 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, MedicalTimelineRequest medicalTimelineRequest)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         Response<int> timelineUpdateResponse = await medicalTimelineService.UpdateAsync(id, medicalTimelineRequest);
         return Ok(timelineUpdateResponse);
     }
@@ -47,6 +58,11 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
     [HttpPost("patient")]
     public async Task<IActionResult> GetByPatientId([FromBody] TimelineSearchFilterRequest searchRequest)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         Response<List<MedicalTimelineResponse>> timelineByPatientIdResponse = await medicalTimelineService.GetFilteredAsync(userId, searchRequest);
         return Ok(timelineByPatientIdResponse);
@@ -56,6 +72,11 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
     [Authorize(Roles = "Patient")]
     public async Task<IActionResult> Create([FromBody] DocumentRequest documentRequest)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         Response<int> addDocumentResponse = await medicalTimelineService.AddDocumentAsync(documentRequest, userId);
@@ -66,6 +87,11 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
     [Authorize(Roles = "Patient")]
     public async Task<IActionResult> DeleteMany([FromBody] DeleteDocumentsRequest request)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         Response<string> deleteManyResponse =

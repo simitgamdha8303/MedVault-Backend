@@ -124,4 +124,43 @@ public class DoctorProfileService(
             statusCode: (int)HttpStatusCode.OK
         );
     }
+
+    public async Task<Response<List<DoctorListResponse>>> GetAllAsync()
+    {
+        List<DoctorListResponse>? doctors = await doctorProfileRepository.GetAllByFnAsync();
+
+        return ResponseHelper.Response(
+           data: doctors,
+           succeeded: true,
+           message: SuccessMessages.RETRIEVED,
+           errors: null,
+           statusCode: (int)HttpStatusCode.OK
+       );
+    }
+
+    // public async Task<Response<int>> CreateHospitalBySpAsync(HospitalCreateRequest hospitalCreateRequest)
+    // {
+    //     int hospital = await doctorProfileRepository.CreateHospitalBySpAsync(hospitalCreateRequest);
+
+    //     return ResponseHelper.Response(
+    //       data: hospital,
+    //       succeeded: true,
+    //       message: SuccessMessages.Created("Hospital"),
+    //       errors: null,
+    //       statusCode: (int)HttpStatusCode.OK
+    //   );
+    // }
+
+    public async Task<Response<List<HospitalResponse>>> GetAllHospitalByFnAsync()
+    {
+        List<HospitalResponse> hospitals = await doctorProfileRepository.GetAllHospitalByFnAsync();
+
+        return ResponseHelper.Response(
+          data: hospitals,
+          succeeded: true,
+          message: SuccessMessages.RETRIEVED,
+          errors: null,
+          statusCode: (int)HttpStatusCode.OK
+      );
+    }
 }

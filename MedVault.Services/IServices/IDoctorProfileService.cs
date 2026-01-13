@@ -1,7 +1,6 @@
 using MedVault.Common.Response;
 using MedVault.Models.Dtos.RequestDtos;
 using MedVault.Models.Dtos.ResponseDtos;
-using MedVault.Models.Entities;
 
 namespace MedVault.Services.IServices;
 
@@ -11,4 +10,9 @@ public interface IDoctorProfileService
     Task<Response<DoctorProfileResponse>> GetByIdAsync(int id);
     Task<Response<string>> UpdateAsync(int id, DoctorProfileRequest request);
     Task<Response<string>> DeleteAsync(int id);
+    Task<Response<List<DoctorListResponse>>> GetAllAsync();
+
+    //  Task<Response<int>> CreateHospitalBySpAsync(HospitalCreateRequest request);
+    Task<Response<List<HospitalResponse>>> GetAllHospitalByFnAsync();
+
 }

@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 public class MedicalTimelineRequest
 {
     [Required]
+    [Range(1, int.MaxValue)]
     public int PatientId { get; set; }
 
     public int? DoctorProfileId { get; set; }
@@ -19,5 +20,6 @@ public class MedicalTimelineRequest
     [Required]
     public DateOnly EventDate { get; set; }
 
+    [MaxLength(1000)]
     public string? Notes { get; set; }
 }

@@ -10,12 +10,17 @@ namespace MedVault.Web.Controllers;
 
 [ApiController]
 [Route("api/doctor-profile")]
-[Authorize(Roles = "Doctor")]
+// [Authorize(Roles = "Doctor")]
 public class DoctorProfileController(IDoctorProfileService doctorProfileService) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> Create(DoctorProfileRequest doctorProfileRequest)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         Response<string> createDoctorProfileResponse = await doctorProfileService.CreateAsync(doctorProfileRequest, userId);
         return Ok(createDoctorProfileResponse);
@@ -31,6 +36,11 @@ public class DoctorProfileController(IDoctorProfileService doctorProfileService)
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, DoctorProfileRequest doctorProfileRequest)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         Response<string> updateDoctorProfileResponse = await doctorProfileService.UpdateAsync(id, doctorProfileRequest);
         return Ok(updateDoctorProfileResponse);
     }
@@ -41,4 +51,34 @@ public class DoctorProfileController(IDoctorProfileService doctorProfileService)
         Response<string> deleteDoctorProfileResponse = await doctorProfileService.DeleteAsync(id);
         return Ok(deleteDoctorProfileResponse);
     }
+
+    [HttpGet]
+    // [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetAll()
+    {
+        Response<List<DoctorListResponse>>? doctorListResponse = await doctorProfileService.GetAllAsync();
+        return Ok(doctorListResponse);
+    }
+
+    // [HttpPost("hospitals")]
+    // // [Authorize(Roles = "Admin")]
+    // public async Task<IActionResult> AddHospital([FromBody] HospitalCreateRequest request)
+    // {
+    //     if (!ModelState.IsValid)
+    //         return BadRequest(ModelState);
+
+    //     var response = await doctorProfileService.CreateHospitalBySpAsync(request);
+    //     return Ok(response);
+    // }
+
+    [HttpGet("hospitals")]
+    // [Authorize(Roles = "Doctor,Admin")]
+    public async Task<IActionResult> GetHospitals()
+    {
+         Response<List<HospitalResponse>>? hospitalListResponse = await doctorProfileService.GetAllHospitalByFnAsync();
+        return Ok(hospitalListResponse);
+    }
+
+
+
 }

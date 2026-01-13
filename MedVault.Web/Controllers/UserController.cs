@@ -14,6 +14,11 @@ public class UserController(IUserService userService) : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register(UserRequest userRequest)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         Response<string> registerUserResponse = await userService.RegisterUserAsync(userRequest);
         return Ok(registerUserResponse);
     }
@@ -33,6 +38,11 @@ public class UserController(IUserService userService) : ControllerBase
     public async Task<IActionResult> UpdateTwoFactor(
     ToggleTwoFactorRequest request)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         Response<bool> twoFactorResponse =
@@ -45,6 +55,11 @@ public class UserController(IUserService userService) : ControllerBase
     [Authorize]
     public async Task<IActionResult> UpdateProfile(UpdateUserProfileRequest updateUserProfileRequest)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         Response<bool> updateProfileResponse = await userService.UpdateProfileAsync(userId, updateUserProfileRequest);

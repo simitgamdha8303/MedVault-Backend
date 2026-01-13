@@ -4,6 +4,7 @@ using MedVault.Models;
 using MedVault.Models.Dtos.RequestDtos;
 using MedVault.Models.Dtos.ResponseDtos;
 using MedVault.Services.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -11,12 +12,17 @@ namespace MedVault.Web.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthController(IAuthService authService, Cloudinary cloudinary,  IOptions<CloudinarySettingsResponse> cloudinaryOptions) : ControllerBase
+public class AuthController(IAuthService authService, Cloudinary cloudinary, IOptions<CloudinarySettingsResponse> cloudinaryOptions) : ControllerBase
 {
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest loginRequest)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         Response<LoginResponse> loginUserResponse = await authService.LoginUserAsync(loginRequest);
         return Ok(loginUserResponse);
     }
@@ -24,6 +30,11 @@ public class AuthController(IAuthService authService, Cloudinary cloudinary,  IO
     [HttpPost("verify-otp")]
     public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpRequest request)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         Response<OtpResponse> verifyOtpResponse = await authService.VerifyOtpAsync(request);
         return Ok(verifyOtpResponse);
     }
@@ -31,11 +42,17 @@ public class AuthController(IAuthService authService, Cloudinary cloudinary,  IO
     [HttpPost("resend-otp")]
     public async Task<IActionResult> ResendOtp(ResendOtpRequest request)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         Response<string> resendOtpResponse = await authService.ResendOtpAsync(request);
         return Ok(resendOtpResponse);
     }
 
     [HttpPost("signature")]
+    [Authorize]
     public IActionResult GetSignature()
     {
         var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
