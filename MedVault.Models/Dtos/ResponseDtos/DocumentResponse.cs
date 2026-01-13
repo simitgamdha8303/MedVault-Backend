@@ -4,4 +4,5 @@ public class DocumentResponse
 {
     public string FileName { get; set; } = null!;
     public string FileUrl { get; set; } = null!;
+    public int Id { get; set; }
 }

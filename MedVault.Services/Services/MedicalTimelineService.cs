@@ -84,7 +84,9 @@ public class MedicalTimelineService(
             d => new DocumentResponse
             {
                 FileName = d.FileName,
-                FileUrl = d.FileUrl
+                FileUrl = d.FileUrl,
+                Id = d.Id
+
             }
         ).ToList()
     });
@@ -198,6 +200,15 @@ public class MedicalTimelineService(
                 CheckupType = X.CheckupType.ToString(),
                 EventDate = X.EventDate,
                 Notes = X.Notes,
+                DocumentResponses = X.Documents.Select(
+                    d => new DocumentResponse
+                    {
+                        FileName = d.FileName,
+                        FileUrl = d.FileUrl,
+                        Id = d.Id
+
+                    }
+                ).ToList()
             }
         );
 
@@ -224,6 +235,15 @@ public class MedicalTimelineService(
         if (!timelineExists)
             throw new ArgumentException(ErrorMessages.NotFound("Medical Timeline"));
 
+        string extension = Path.GetExtension(documentRequest.FileName).ToLowerInvariant();
+
+        string[] allowedExtensions = [".jpg", ".jpeg", ".png", ".pdf"];
+
+        if (!allowedExtensions.Contains(extension))
+        {
+            throw new ArgumentException(ErrorMessages.FILE_VALIDATION);
+        }
+
         DocumentType documentType = DocumentTypeHelper.Detect(documentRequest.FileName);
 
         Document document = new()
@@ -247,5 +267,40 @@ public class MedicalTimelineService(
             statusCode: 200
         );
     }
+
+    public async Task<Response<string>> DeleteManyDocumentAsync(List<int> documentIds, int userId)
+    {
+        if (documentIds == null || documentIds.Count == 0)
+            throw new ArgumentException("No documents selected");
+
+
+        PatientProfile? patient = await patientProfileRepository
+            .FirstOrDefaultAsync(p => p.UserId == userId);
+
+        if (patient == null)
+            throw new ArgumentException(ErrorMessages.NotFound("Patient"));
+
+
+        List<Document>? documents = await documentRepository.GetListAsync(
+            d => documentIds.Contains(d.Id) && d.PatientId == patient.Id,
+            d => d
+        );
+
+        if (documents.Count != documentIds.Count)
+            throw new ArgumentException(ErrorMessages.NotFound("Document"));
+
+        documentRepository.DeleteRange(documents);
+
+        await documentRepository.SaveChangesAsync();
+
+        return ResponseHelper.Response<string>(
+            data: null,
+            succeeded: true,
+            message: SuccessMessages.Deleted("Documents"),
+            errors: null,
+            statusCode: 200
+        );
+    }
+
 }
 

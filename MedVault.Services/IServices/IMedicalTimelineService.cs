@@ -12,4 +12,5 @@ public interface IMedicalTimelineService
     Task<Response<string>> DeleteAsync(int id);
     Task<Response<List<MedicalTimelineResponse>>> GetFilteredAsync(int userId, TimelineSearchFilterRequest searchRequest);
     Task<Response<int>> AddDocumentAsync(DocumentRequest request, int userId);
+    Task<Response<string>> DeleteManyDocumentAsync(List<int> documentIds, int userId);
 }

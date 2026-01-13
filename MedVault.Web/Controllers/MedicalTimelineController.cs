@@ -2,7 +2,6 @@ using System.Security.Claims;
 using MedVault.Common.Response;
 using MedVault.Models.Dtos.RequestDtos;
 using MedVault.Models.Dtos.ResponseDtos;
-using MedVault.Models.Enums;
 using MedVault.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -61,5 +60,17 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
 
         Response<int> addDocumentResponse = await medicalTimelineService.AddDocumentAsync(documentRequest, userId);
         return Ok(addDocumentResponse);
+    }
+
+    [HttpDelete("documents/list")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> DeleteMany([FromBody] DeleteDocumentsRequest request)
+    {
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        Response<string> deleteManyResponse =
+            await medicalTimelineService.DeleteManyDocumentAsync(request.DocumentIds, userId);
+
+        return Ok(deleteManyResponse);
     }
 }
