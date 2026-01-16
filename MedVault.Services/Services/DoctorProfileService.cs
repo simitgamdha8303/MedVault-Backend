@@ -150,4 +150,30 @@ public class DoctorProfileService(
           statusCode: (int)HttpStatusCode.OK
       );
     }
+
+    public async Task<Response<int>> AddHospitalBySp(HospitalCreateRequest hospitalCreateRequest)
+    {
+        int hospital = await doctorProfileRepository.CreateHospitalAsync(hospitalCreateRequest.Name);
+
+        return ResponseHelper.Response(
+                 data: hospital,
+                 succeeded: true,
+                 message: SuccessMessages.RETRIEVED,
+                 errors: null,
+                 statusCode: (int)HttpStatusCode.OK
+             );
+    }
+
+     public async Task<Response<DoctorProfileResponse>> AddDoctorProfileBySp(DoctorProfileRequest doctorProfileRequest, int userId)
+    {
+        DoctorProfileResponse doctorProfileResponse = await doctorProfileRepository.CreateDoctorProfileAsync(doctorProfileRequest,userId);
+
+        return ResponseHelper.Response(
+                 data: doctorProfileResponse,
+                 succeeded: true,
+                 message: SuccessMessages.RETRIEVED,
+                 errors: null,
+                 statusCode: (int)HttpStatusCode.OK
+             );
+    }
 }

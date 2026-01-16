@@ -1,5 +1,7 @@
+using System.Data;
 using Dapper;
 using MedVault.Data.IRepositories;
+using MedVault.Models.Dtos.RequestDtos;
 using MedVault.Models.Dtos.ResponseDtos;
 using MedVault.Models.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -35,6 +37,53 @@ public class DoctorProfileRepository : GenericRepository<DoctorProfile>, IDoctor
         List<HospitalResponse>? hospitals = (await connection.QueryAsync<HospitalResponse>(sql)).ToList();
 
         return hospitals;
+    }
+
+    public async Task<int> CreateHospitalAsync(string name)
+    {
+        await using var connection = new NpgsqlConnection(_connectionString);
+
+        DynamicParameters? parameters = new DynamicParameters();
+        parameters.Add("p_name", name, DbType.String, ParameterDirection.Input);
+        parameters.Add("p_id", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+        await connection.ExecuteAsync(
+            "public.create_hospital",
+            parameters,
+            commandType: CommandType.StoredProcedure
+        );
+
+        return parameters.Get<int>("p_id");
+    }
+
+
+    public async Task<DoctorProfileResponse> CreateDoctorProfileAsync(DoctorProfileRequest request, int userId)
+    {
+        await using var connection = new NpgsqlConnection(_connectionString);
+
+        DynamicParameters? parameters = new DynamicParameters();
+
+        parameters.Add("p_user_id", userId);
+        parameters.Add("p_hospital_id", request.HospitalId);
+        parameters.Add("p_specialization", request.Specialization);
+        parameters.Add("p_license_number", request.LicenseNumber);
+
+        parameters.Add("p_hospital_id_out", dbType: DbType.Int32, direction: ParameterDirection.Output);
+        parameters.Add("p_specialization_out", dbType: DbType.String, direction: ParameterDirection.Output);
+        parameters.Add("p_license_number_out", dbType: DbType.String, direction: ParameterDirection.Output);
+
+        await connection.ExecuteAsync(
+            "public.create_doctor_profile",
+            parameters,
+            commandType: CommandType.StoredProcedure
+        );
+
+        return new DoctorProfileResponse
+        {
+            HospitalId = parameters.Get<int>("p_hospital_id_out"),
+            Specialization = parameters.Get<string>("p_specialization_out"),
+            LicenseNumber = parameters.Get<string>("p_license_number_out"),
+        };
     }
 
 }

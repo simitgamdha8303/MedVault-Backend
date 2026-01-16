@@ -12,5 +12,7 @@ public interface IDoctorProfileService
     Task<Response<string>> DeleteAsync(int id);
     Task<Response<List<DoctorListResponse>>> GetAllAsync();
     Task<Response<List<HospitalResponse>>> GetAllHospitalByFnAsync();
+    Task<Response<int>> AddHospitalBySp(HospitalCreateRequest hospitalCreateRequest);
+    Task<Response<DoctorProfileResponse>> AddDoctorProfileBySp(DoctorProfileRequest doctorProfileRequest, int userId);
 
 }

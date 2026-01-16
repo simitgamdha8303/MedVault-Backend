@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using MedVault.Common.Response;
+using MedVault.Data.Migrations;
 using MedVault.Models.Dtos.RequestDtos;
 using MedVault.Models.Dtos.ResponseDtos;
 using MedVault.Services.IServices;
@@ -64,10 +65,30 @@ public class DoctorProfileController(IDoctorProfileService doctorProfileService)
     // [Authorize(Roles = "Doctor,Admin")]
     public async Task<IActionResult> GetHospitals()
     {
-         Response<List<HospitalResponse>>? hospitalListResponse = await doctorProfileService.GetAllHospitalByFnAsync();
+        Response<List<HospitalResponse>>? hospitalListResponse = await doctorProfileService.GetAllHospitalByFnAsync();
         return Ok(hospitalListResponse);
     }
 
+    [HttpPost("add-hospital")]
+    // [Authorize(Roles = "Doctor,Admin")]
+    public async Task<IActionResult> AddHospital(HospitalCreateRequest hospitalCreateRequest)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
 
+        Response<int> addHospitalResponse = await doctorProfileService.AddHospitalBySp(hospitalCreateRequest);
 
+        return Ok(addHospitalResponse);
+    }
+
+    [HttpPost("add-doctor-by-sp")]
+    // [Authorize(Roles = "Doctor,Admin")]
+    public async Task<IActionResult> AddDoctorProfileBySp(DoctorProfileRequest doctorProfileRequest)
+    {
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        Response<DoctorProfileResponse> doctorProfileResponse = await doctorProfileService.AddDoctorProfileBySp(doctorProfileRequest, userId);
+        return Ok(doctorProfileResponse);
+    }
 }
