@@ -60,17 +60,6 @@ public class DoctorProfileController(IDoctorProfileService doctorProfileService)
         return Ok(doctorListResponse);
     }
 
-    // [HttpPost("hospitals")]
-    // // [Authorize(Roles = "Admin")]
-    // public async Task<IActionResult> AddHospital([FromBody] HospitalCreateRequest request)
-    // {
-    //     if (!ModelState.IsValid)
-    //         return BadRequest(ModelState);
-
-    //     var response = await doctorProfileService.CreateHospitalBySpAsync(request);
-    //     return Ok(response);
-    // }
-
     [HttpGet("hospitals")]
     // [Authorize(Roles = "Doctor,Admin")]
     public async Task<IActionResult> GetHospitals()

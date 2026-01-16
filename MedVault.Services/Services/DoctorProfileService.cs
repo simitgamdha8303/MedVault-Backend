@@ -138,19 +138,6 @@ public class DoctorProfileService(
        );
     }
 
-    // public async Task<Response<int>> CreateHospitalBySpAsync(HospitalCreateRequest hospitalCreateRequest)
-    // {
-    //     int hospital = await doctorProfileRepository.CreateHospitalBySpAsync(hospitalCreateRequest);
-
-    //     return ResponseHelper.Response(
-    //       data: hospital,
-    //       succeeded: true,
-    //       message: SuccessMessages.Created("Hospital"),
-    //       errors: null,
-    //       statusCode: (int)HttpStatusCode.OK
-    //   );
-    // }
-
     public async Task<Response<List<HospitalResponse>>> GetAllHospitalByFnAsync()
     {
         List<HospitalResponse> hospitals = await doctorProfileRepository.GetAllHospitalByFnAsync();

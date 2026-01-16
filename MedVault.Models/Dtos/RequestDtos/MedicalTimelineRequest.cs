@@ -5,9 +5,9 @@ using System.ComponentModel.DataAnnotations;
 
 public class MedicalTimelineRequest
 {
-    [Required]
-    [Range(1, int.MaxValue)]
-    public int PatientId { get; set; }
+    // [Required]
+    // [Range(1, int.MaxValue)]
+    // public int PatientId { get; set; }
 
     public int? DoctorProfileId { get; set; }
 

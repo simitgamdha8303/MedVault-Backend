@@ -43,7 +43,5 @@ public class UpdateUserProfileRequest
 
     [MaxLength(100)]
     public string? EmergencyContactName { get; set; }
-    
-    [Phone]
     public string? EmergencyContactPhone { get; set; }
 }
