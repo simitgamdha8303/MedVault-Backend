@@ -1,6 +1,8 @@
 namespace MedVault.Models.Entities;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using MedVault.Models.Enums;
+
 
 public class Reminder
 {
@@ -21,6 +23,12 @@ public class Reminder
 
     [Required]
     public DateTime ReminderTime { get; set; }
+
+    public RecurrenceType RecurrenceType { get; set; } = RecurrenceType.None;
+    
+    public int RecurrenceInterval { get; set; } = 1;
+
+    public DateTime? RecurrenceEndDate { get; set; }
 
     [Required]
     public bool IsActive { get; set; }

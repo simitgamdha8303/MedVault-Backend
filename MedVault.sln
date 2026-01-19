@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MedVault.Common", "MedVault
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MedVault.Utilities", "MedVault.Utilities\MedVault.Utilities.csproj", "{7234ED5D-6692-4F78-A122-D53EEE359F6E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MedVault.Infrastructure", "MedVault.Infrastructure\MedVault.Infrastructure.csproj", "{E0FD309D-F6AF-4913-88A6-3A937E25723E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,5 +50,9 @@ Global
 		{7234ED5D-6692-4F78-A122-D53EEE359F6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7234ED5D-6692-4F78-A122-D53EEE359F6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7234ED5D-6692-4F78-A122-D53EEE359F6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0FD309D-F6AF-4913-88A6-3A937E25723E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0FD309D-F6AF-4913-88A6-3A937E25723E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0FD309D-F6AF-4913-88A6-3A937E25723E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0FD309D-F6AF-4913-88A6-3A937E25723E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using MedVault.Common.Messages;
 using MedVault.Common.Response;
 using MedVault.Data.Migrations;
 using MedVault.Models.Dtos.RequestDtos;
@@ -30,6 +31,11 @@ public class DoctorProfileController(IDoctorProfileService doctorProfileService)
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
+        if (id <= 0)
+        {
+            return BadRequest(ErrorMessages.Invalid("id"));
+        }
+
         Response<DoctorProfileResponse> getDoctorProfileResponse = await doctorProfileService.GetByIdAsync(id);
         return Ok(getDoctorProfileResponse);
     }
@@ -37,6 +43,11 @@ public class DoctorProfileController(IDoctorProfileService doctorProfileService)
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, DoctorProfileRequest doctorProfileRequest)
     {
+        if (id <= 0)
+        {
+            return BadRequest(ErrorMessages.Invalid("id"));
+        }
+
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
@@ -50,6 +61,11 @@ public class DoctorProfileController(IDoctorProfileService doctorProfileService)
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
+        if (id <= 0)
+        {
+            return BadRequest(ErrorMessages.Invalid("id"));
+        }
+
         Response<string> deleteDoctorProfileResponse = await doctorProfileService.DeleteAsync(id);
         return Ok(deleteDoctorProfileResponse);
     }
@@ -99,6 +115,11 @@ public class DoctorProfileController(IDoctorProfileService doctorProfileService)
     // [Authorize(Roles = "Doctor,Admin")]
     public async Task<IActionResult> AddDoctorProfileBySp(DoctorProfileRequest doctorProfileRequest)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         Response<DoctorProfileResponse> doctorProfileResponse = await doctorProfileService.AddDoctorProfileBySp(doctorProfileRequest, userId);
         return Ok(doctorProfileResponse);

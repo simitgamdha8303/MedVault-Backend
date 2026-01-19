@@ -1,3 +1,4 @@
+using Hangfire;
 using MedVault.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,12 +10,14 @@ public static class DatabaseExtensions
         this WebApplicationBuilder builder,
         IConfiguration configuration)
     {
+
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(
                 configuration.GetConnectionString("DefaultConnection"),
                 b => b.MigrationsAssembly("MedVault.Data")
             )
         );
+        builder.Services.AddHangfireServer();
 
         return builder;
     }

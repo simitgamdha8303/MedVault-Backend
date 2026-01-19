@@ -21,8 +21,7 @@ public static class RepositoryExtensions
         builder.Services.AddScoped<IPatientProfileRepository, PatientProfileRepository>();
         builder.Services.AddScoped<IMedicalTimelineRepository, MedicalTimelineRepository>();
         builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
-
-
+        builder.Services.AddScoped<IReminderRepository, ReminderRepository>();
 
 
         return builder;

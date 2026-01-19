@@ -3,10 +3,7 @@ using MedVault.Models.Entities;
 
 namespace MedVault.Data.Repositories;
 
-public class HospitalRepository : GenericRepository<Hospital>, IHospitalRepository
+public class HospitalRepository(ApplicationDbContext context) : GenericRepository<Hospital>(context), IHospitalRepository
 {
-    public HospitalRepository(ApplicationDbContext context) : base(context)
-    {
-    }
 
 }

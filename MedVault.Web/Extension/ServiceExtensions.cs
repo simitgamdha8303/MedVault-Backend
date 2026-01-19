@@ -1,4 +1,5 @@
 using CloudinaryDotNet;
+using Hangfire;
 using MedVault.Models;
 using MedVault.Models.Dtos;
 using MedVault.Services.IServices;
@@ -23,7 +24,8 @@ public static class ServiceExtensions
                 policy
                     .WithOrigins("http://localhost:4200") // Angular app
                     .AllowAnyHeader()
-                    .AllowAnyMethod();
+                    .AllowAnyMethod()
+                    .AllowCredentials();
             });
         });
 
@@ -79,6 +81,9 @@ public static class ServiceExtensions
         builder.Services.AddScoped<IPatientProfileService, PatientProfileService>();
         builder.Services.AddScoped<IMedicalTimelineService, MedicalTimelineService>();
         builder.Services.AddScoped<ILookupService, LookupService>();
+        builder.Services.AddScoped<IReminderService, ReminderService>();
+
+
 
         builder.Services.AddScoped<JwtService>();
 
@@ -100,6 +105,7 @@ public static class ServiceExtensions
             return new Cloudinary(account);
         });
 
+        builder.Services.AddSignalR();
 
 
         return builder;

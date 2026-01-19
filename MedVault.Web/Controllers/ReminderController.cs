@@ -10,13 +10,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace MedVault.Web.Controllers;
 
 [ApiController]
-[Route("api/patient-profile")]
-public class PatientProfileController(IPatientProfileService patientProfileService)
+[Route("api/reminder")]
+[Authorize]
+public class ReminderController(IReminderService reminderService)
     : ControllerBase
 {
     [HttpPost]
     [Authorize(Roles = "Patient")]
-    public async Task<IActionResult> Create([FromBody] PatientProfileRequest patientProfileRequest)
+    public async Task<IActionResult> Create(CreateReminderRequest createReminderRequest)
     {
         if (!ModelState.IsValid)
         {
@@ -24,12 +25,13 @@ public class PatientProfileController(IPatientProfileService patientProfileServi
         }
 
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        Response<string> createPatientProfileResponse = await patientProfileService.CreateAsync(patientProfileRequest, userId);
-        return Ok(createPatientProfileResponse);
+
+        Response<int> createReminderResponse = await reminderService.CreateAsync(createReminderRequest, userId);
+
+        return Ok(createReminderResponse);
     }
 
     [HttpGet("{id:int}")]
-    [Authorize(Roles = "Doctor,Patient")]
     public async Task<IActionResult> GetById(int id)
     {
         if (id <= 0)
@@ -37,13 +39,23 @@ public class PatientProfileController(IPatientProfileService patientProfileServi
             return BadRequest(ErrorMessages.Invalid("id"));
         }
 
-        Response<PatientProfileResponse> patientProfileResponse = await patientProfileService.GetByIdAsync(id);
-        return Ok(patientProfileResponse);
+        Response<ReminderResponse> getByIdReminderResponse = await reminderService.GetByIdAsync(id);
+
+        return Ok(getByIdReminderResponse);
+    }
+
+    [HttpGet("patient")]
+    public async Task<IActionResult> GetByPatient()
+    {
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        Response<List<ReminderResponse>> getByPatientRemindersResponse = await reminderService.GetByPatientAsync(userId);
+
+        return Ok(getByPatientRemindersResponse);
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(Roles = "Patient")]
-    public async Task<IActionResult> Update(int id, PatientProfileRequest patientProfileRequest)
+    public async Task<IActionResult> Update(int id, UpdateReminderRequest updateReminderRequest)
     {
         if (id <= 0)
         {
@@ -55,12 +67,12 @@ public class PatientProfileController(IPatientProfileService patientProfileServi
             return BadRequest(ModelState);
         }
 
-        Response<string> updatePatientProfileResponse = await patientProfileService.UpdateAsync(id, patientProfileRequest);
-        return Ok(updatePatientProfileResponse);
+        Response<int> updateReminderResponse = await reminderService.UpdateAsync(id, updateReminderRequest);
+
+        return Ok(updateReminderResponse);
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Roles = "Patient")]
     public async Task<IActionResult> Delete(int id)
     {
         if (id <= 0)
@@ -68,7 +80,8 @@ public class PatientProfileController(IPatientProfileService patientProfileServi
             return BadRequest(ErrorMessages.Invalid("id"));
         }
 
-        Response<string> deletePatientProfile = await patientProfileService.DeleteAsync(id);
-        return Ok(deletePatientProfile);
+        Response<string> deleteReminderResponse = await reminderService.DeleteAsync(id);
+
+        return Ok(deleteReminderResponse);
     }
 }

@@ -1,3 +1,6 @@
+using Hangfire;
+using MedVault.Infrastructure.Hubs;
+
 using MedVault.Web.Middlewares;
 
 namespace MedVault.Web.Extension;
@@ -20,6 +23,8 @@ public static class MiddlewareExtensions
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
+        app.MapHub<NotificationHub>("/hubs/notifications");
+        app.UseHangfireDashboard("/hangfire");
 
         return app;
     }

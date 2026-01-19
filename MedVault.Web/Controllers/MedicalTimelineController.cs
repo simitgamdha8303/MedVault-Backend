@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using MedVault.Common.Messages;
 using MedVault.Common.Response;
 using MedVault.Models.Dtos.RequestDtos;
 using MedVault.Models.Dtos.ResponseDtos;
@@ -32,6 +33,11 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
+        if (id <= 0)
+        {
+            return BadRequest(ErrorMessages.Invalid("id"));
+        }
+
         Response<MedicalTimelineResponse> timelineByIdResponse = await medicalTimelineService.GetByIdAsync(id);
         return Ok(timelineByIdResponse);
     }
@@ -39,6 +45,11 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, MedicalTimelineRequest medicalTimelineRequest)
     {
+        if (id <= 0)
+        {
+            return BadRequest(ErrorMessages.Invalid("id"));
+        }
+
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
@@ -51,6 +62,11 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
+        if (id <= 0)
+        {
+            return BadRequest(ErrorMessages.Invalid("id"));
+        }
+
         Response<string> timelineDeleteResponse = await medicalTimelineService.DeleteAsync(id);
         return Ok(timelineDeleteResponse);
     }

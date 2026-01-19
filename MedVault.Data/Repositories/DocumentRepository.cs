@@ -3,10 +3,7 @@ using MedVault.Models.Entities;
 
 namespace MedVault.Data.Repositories;
 
-public class DocumentRepository : GenericRepository<Document>, IDocumentRepository
+public class DocumentRepository(ApplicationDbContext context) : GenericRepository<Document>(context), IDocumentRepository
 {
-    public DocumentRepository(ApplicationDbContext context) : base(context)
-    {
-    }
 
 }

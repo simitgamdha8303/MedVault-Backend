@@ -2,9 +2,6 @@ namespace MedVault.Data.Repositories;
 using MedVault.Data.IRepositories;
 using MedVault.Models.Entities;
 
-public class UserRoleRepository : GenericRepository<UserRole>, IUserRoleRepository
+public class UserRoleRepository(ApplicationDbContext context) : GenericRepository<UserRole>(context), IUserRoleRepository
 {
-     public UserRoleRepository(ApplicationDbContext context) : base(context)
-    {
-    }
 }

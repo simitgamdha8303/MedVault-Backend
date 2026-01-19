@@ -3,10 +3,6 @@ using MedVault.Models.Entities;
 
 namespace MedVault.Data.Repositories;
 
-public class PatientProfileRepository : GenericRepository<PatientProfile>, IPatientProfileRepository
+public class PatientProfileRepository(ApplicationDbContext context) : GenericRepository<PatientProfile>(context), IPatientProfileRepository
 {
-    public PatientProfileRepository(ApplicationDbContext context)
-        : base(context)
-    {
-    }
 }

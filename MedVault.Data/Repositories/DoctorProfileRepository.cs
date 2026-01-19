@@ -10,13 +10,9 @@ using Npgsql;
 
 namespace MedVault.Data.Repositories;
 
-public class DoctorProfileRepository : GenericRepository<DoctorProfile>, IDoctorProfileRepository
+public class DoctorProfileRepository(ApplicationDbContext context, IConfiguration configuration) : GenericRepository<DoctorProfile>(context), IDoctorProfileRepository
 {
-    private readonly string _connectionString;
-    public DoctorProfileRepository(ApplicationDbContext context, IConfiguration configuration) : base(context)
-    {
-        _connectionString = configuration.GetConnectionString("DefaultConnection")!;
-    }
+    private readonly string _connectionString = configuration.GetConnectionString("DefaultConnection")!;
 
     public async Task<List<DoctorListResponse>> GetAllByFnAsync()
     {
@@ -88,7 +84,7 @@ public class DoctorProfileRepository : GenericRepository<DoctorProfile>, IDoctor
 
     public async Task<List<DoctorPatientListResponse>> GetPatientsByDoctorIdAsync(int doctorProfileId)
     {
-        return await _context.MedicalTimelines
+        return await context.MedicalTimelines
             .Where(mt => mt.DoctorProfileId == doctorProfileId)
             .GroupBy(mt => new
             {
