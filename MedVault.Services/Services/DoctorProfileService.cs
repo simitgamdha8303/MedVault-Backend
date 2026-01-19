@@ -164,9 +164,9 @@ public class DoctorProfileService(
              );
     }
 
-     public async Task<Response<DoctorProfileResponse>> AddDoctorProfileBySp(DoctorProfileRequest doctorProfileRequest, int userId)
+    public async Task<Response<DoctorProfileResponse>> AddDoctorProfileBySp(DoctorProfileRequest doctorProfileRequest, int userId)
     {
-        DoctorProfileResponse doctorProfileResponse = await doctorProfileRepository.CreateDoctorProfileAsync(doctorProfileRequest,userId);
+        DoctorProfileResponse doctorProfileResponse = await doctorProfileRepository.CreateDoctorProfileAsync(doctorProfileRequest, userId);
 
         return ResponseHelper.Response(
                  data: doctorProfileResponse,
@@ -176,4 +176,32 @@ public class DoctorProfileService(
                  statusCode: (int)HttpStatusCode.OK
              );
     }
+
+    public async Task<Response<List<DoctorPatientListResponse>>> GetPatientsByDoctorIdAsync(int userId)
+    {
+        bool userExists = await userRepository.AnyAsync(u => u.Id == userId);
+        if (!userExists)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
+
+        DoctorProfile? doctor = await doctorProfileRepository.FirstOrDefaultAsync(d => d.UserId == userId);
+
+        if (doctor == null)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("Doctor profile"));
+        }
+
+        List<DoctorPatientListResponse> patients =
+            await doctorProfileRepository.GetPatientsByDoctorIdAsync(doctor.Id);
+
+        return ResponseHelper.Response(
+            data: patients,
+            succeeded: true,
+            message: SuccessMessages.RETRIEVED,
+            errors: null,
+            statusCode: (int)HttpStatusCode.OK
+        );
+    }
+
 }

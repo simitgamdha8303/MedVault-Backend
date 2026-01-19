@@ -13,4 +13,7 @@ public interface IDoctorProfileRepository : IGenericRepository<DoctorProfile>
     public Task<int> CreateHospitalAsync(string name);
 
     public Task<DoctorProfileResponse> CreateDoctorProfileAsync(DoctorProfileRequest request, int userId);
+
+    Task<List<DoctorPatientListResponse>> GetPatientsByDoctorIdAsync(int doctorProfileId);
+
 }

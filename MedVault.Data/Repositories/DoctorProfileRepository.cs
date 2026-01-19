@@ -86,4 +86,23 @@ public class DoctorProfileRepository : GenericRepository<DoctorProfile>, IDoctor
         };
     }
 
+    public async Task<List<DoctorPatientListResponse>> GetPatientsByDoctorIdAsync(int doctorProfileId)
+    {
+        return await _context.MedicalTimelines
+            .Where(mt => mt.DoctorProfileId == doctorProfileId)
+            .GroupBy(mt => new
+            {
+                mt.PatientProfile.Id,
+                mt.PatientProfile.User.FirstName
+            })
+            .Select(g => new DoctorPatientListResponse
+            {
+                PatientId = g.Key.Id,
+                PatientName = g.Key.FirstName,
+                TotalVisits = g.Count()
+            })
+            .ToListAsync();
+    }
+
+
 }

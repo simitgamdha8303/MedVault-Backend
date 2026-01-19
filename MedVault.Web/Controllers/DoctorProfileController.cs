@@ -11,7 +11,7 @@ namespace MedVault.Web.Controllers;
 
 [ApiController]
 [Route("api/doctor-profile")]
-// [Authorize(Roles = "Doctor")]
+[Authorize(Roles = "Doctor")]
 public class DoctorProfileController(IDoctorProfileService doctorProfileService) : ControllerBase
 {
     [HttpPost]
@@ -46,11 +46,23 @@ public class DoctorProfileController(IDoctorProfileService doctorProfileService)
         return Ok(updateDoctorProfileResponse);
     }
 
+
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
         Response<string> deleteDoctorProfileResponse = await doctorProfileService.DeleteAsync(id);
         return Ok(deleteDoctorProfileResponse);
+    }
+
+    [HttpGet("patients")]
+    public async Task<IActionResult> GetPatientsByDoctor()
+    {
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        Response<List<DoctorPatientListResponse>> response =
+            await doctorProfileService.GetPatientsByDoctorIdAsync(userId);
+
+        return Ok(response);
     }
 
     [HttpGet]
