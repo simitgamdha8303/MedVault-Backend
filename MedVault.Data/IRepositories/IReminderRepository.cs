@@ -4,5 +4,5 @@ namespace MedVault.Data.IRepositories;
 
 public interface IReminderRepository : IGenericRepository<Reminder>
 {
-
+    Task<Reminder?> GetReminderWithPatientAsync(int reminderId);
 }

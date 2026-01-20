@@ -1,5 +1,6 @@
 using CloudinaryDotNet;
 using Hangfire;
+using MedVault.Infrastructure.Notifications;
 using MedVault.Models;
 using MedVault.Models.Dtos;
 using MedVault.Services.IServices;
@@ -82,6 +83,9 @@ public static class ServiceExtensions
         builder.Services.AddScoped<IMedicalTimelineService, MedicalTimelineService>();
         builder.Services.AddScoped<ILookupService, LookupService>();
         builder.Services.AddScoped<IReminderService, ReminderService>();
+        builder.Services.AddScoped<INotificationDispatcher, SignalRNotificationDispatcher>();
+        builder.Services.AddScoped<ReminderJobService>();
+
 
 
 

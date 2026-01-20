@@ -25,13 +25,15 @@ public class Reminder
     public DateTime ReminderTime { get; set; }
 
     public RecurrenceType RecurrenceType { get; set; } = RecurrenceType.None;
-    
+
     public int RecurrenceInterval { get; set; } = 1;
 
     public DateTime? RecurrenceEndDate { get; set; }
 
     [Required]
     public bool IsActive { get; set; }
+
+    public string? HangfireJobId { get; set; }
 
     [Required]
     public DateTime CreatedAt { get; set; }

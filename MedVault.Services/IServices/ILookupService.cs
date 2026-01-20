@@ -10,4 +10,8 @@ public interface ILookupService
     Response<List<EnumLookupResponse>> GetGenders();
     Response<List<EnumLookupResponse>> GetBloodGroups();
     Task<Response<List<EnumLookupResponse>>> GetAllHospitalAsync();
+    Task<Response<List<EnumLookupResponse>>> GetAllReminderTypeAsync();
+
+    Response<List<EnumLookupResponse>> GetRecurrenceType();
+
 }

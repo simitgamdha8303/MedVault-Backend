@@ -20,10 +20,12 @@ public class UpdateReminderRequest
     [Required]
     public RecurrenceType RecurrenceType { get; set; }
 
-    [Range(1, 365, ErrorMessage = ValidationMessages.RECURRENCE_INTERVAL)]
     public int RecurrenceInterval { get; set; }
 
     public DateTime? RecurrenceEndDate { get; set; }
 
     public bool IsActive { get; set; }
+
+    [Required]
+    public int ReminderTypeId { get; set; }
 }

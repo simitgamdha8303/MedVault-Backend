@@ -5,13 +5,12 @@ using MedVault.Common.Messages;
 using MedVault.Common.Response;
 using MedVault.Data.IRepositories;
 using MedVault.Models.Dtos.ResponseDtos;
-using MedVault.Models.Entities;
 using MedVault.Models.Enums;
 using MedVault.Services.IServices;
 
 namespace MedVault.Services.Services;
 
-public class LookupService(IDoctorProfileRepository doctorProfileRepository, IMapper mapper, IHospitalRepository hospitalRepository) : ILookupService
+public class LookupService(IDoctorProfileRepository doctorProfileRepository, IMapper mapper, IHospitalRepository hospitalRepository, IReminderTypeRepository reminderTypeRepository) : ILookupService
 {
     public async Task<Response<List<EnumLookupResponse>>> GetAllDoctorAsync()
     {
@@ -117,6 +116,50 @@ public class LookupService(IDoctorProfileRepository doctorProfileRepository, IMa
 
         return ResponseHelper.Response(
             data: hospitals,
+            succeeded: true,
+            message: SuccessMessages.RETRIEVED,
+            errors: null,
+            statusCode: (int)HttpStatusCode.OK
+        );
+    }
+
+    public Response<List<EnumLookupResponse>> GetRecurrenceType()
+    {
+        List<EnumLookupResponse>? recurrenceType = Enum.GetValues<RecurrenceType>()
+           .Select(g => new EnumLookupResponse
+           {
+               Id = (int)g,
+               Name = g.ToString()
+           })
+           .ToList();
+
+        return ResponseHelper.Response(
+            data: recurrenceType,
+            succeeded: true,
+            message: SuccessMessages.RETRIEVED,
+            errors: null,
+            statusCode: (int)HttpStatusCode.OK
+        );
+    }
+
+    public async Task<Response<List<EnumLookupResponse>>> GetAllReminderTypeAsync()
+    {
+        List<EnumLookupResponse>? reminders = await reminderTypeRepository.GetListAsync(
+           x => 1 == 1,
+           x => new EnumLookupResponse
+           {
+               Id = x.Id,
+               Name = x.Name
+           }
+       );
+
+        if (reminders == null)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("Hospital"));
+        }
+
+        return ResponseHelper.Response(
+            data: reminders,
             succeeded: true,
             message: SuccessMessages.RETRIEVED,
             errors: null,

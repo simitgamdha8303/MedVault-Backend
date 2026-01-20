@@ -1,11 +1,22 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
 namespace MedVault.Infrastructure.Hubs;
 
+[Authorize]
 public class NotificationHub : Hub
 {
-    public async Task JoinUser(string userId)
+    public override async Task OnConnectedAsync()
     {
-        await Groups.AddToGroupAsync(Context.ConnectionId, userId);
+        string? userId = Context.User?
+            .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (!string.IsNullOrEmpty(userId))
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, userId);
+        }
+
+        await base.OnConnectedAsync();
     }
 }

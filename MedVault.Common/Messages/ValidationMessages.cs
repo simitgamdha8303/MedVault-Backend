@@ -17,6 +17,5 @@ public static class ValidationMessages
     public const string PASSWORD_MIN_LENGTH = "Password must be at least 8 characters long.";
     public const string PASSWORD_REQUIREMENTS = "Password must be at least 8 characters, include uppercase, lowercase, number, special character, and have no spaces.";
     public const string IDENTIFIER_REQUIRED = "Email or phone number is required";
-    public const string RECURRENCE_INTERVAL = "Recurrence interval must be at least 1";
 
 }

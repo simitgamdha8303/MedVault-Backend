@@ -1,4 +1,5 @@
 using Hangfire;
+using Hangfire.PostgreSql;
 using MedVault.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +18,18 @@ public static class DatabaseExtensions
                 b => b.MigrationsAssembly("MedVault.Data")
             )
         );
+
+        builder.Services.AddHangfire(config =>
+        {
+            config.UsePostgreSqlStorage(options =>
+            {
+                options.UseNpgsqlConnection(
+                    configuration.GetConnectionString("DefaultConnection")
+                );
+            });
+
+        });
+
         builder.Services.AddHangfireServer();
 
         return builder;

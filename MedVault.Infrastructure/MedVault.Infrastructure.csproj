@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\MedVault.Models\MedVault.Models.csproj" />
-     <ProjectReference Include="..\MedVault.Services.Abstractions\MedVault.Services.Abstractions.csproj" />
+     <ProjectReference Include="..\MedVault.Services\MedVault.Services.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Hangfire" Version="1.8.22" />

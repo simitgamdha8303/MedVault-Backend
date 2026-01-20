@@ -1,5 +1,6 @@
 using System.Net;
 using AutoMapper;
+using Hangfire;
 using MedVault.Common.Helper;
 using MedVault.Common.Messages;
 using MedVault.Common.Response;
@@ -11,7 +12,8 @@ using MedVault.Services.IServices;
 
 namespace MedVault.Services.Services;
 
-public class ReminderService(IReminderRepository reminderRepository, IUserRepository userRepository, IPatientProfileRepository patientProfileRepository, IMapper mapper) : IReminderService
+public class ReminderService(IReminderRepository reminderRepository, IUserRepository userRepository, IPatientProfileRepository patientProfileRepository, IMapper mapper,
+   IBackgroundJobClient backgroundJobs) : IReminderService
 {
     public async Task<Response<int>> CreateAsync(CreateReminderRequest createReminderRequest, int userId)
     {
@@ -27,12 +29,28 @@ public class ReminderService(IReminderRepository reminderRepository, IUserReposi
         if (patient == null)
             throw new ArgumentException(ErrorMessages.NotFound("Patient"));
 
+        if (createReminderRequest.RecurrenceEndDate != null &&
+createReminderRequest.RecurrenceEndDate <= createReminderRequest.ReminderTime)
+        {
+            throw new ArgumentException(
+                "Recurrence end date must be after reminder time");
+        }
+
+
         Reminder reminder = mapper.Map<Reminder>(createReminderRequest);
         reminder.PatientId = patient.Id;
         reminder.IsActive = true;
         reminder.CreatedAt = DateTime.UtcNow;
 
         await reminderRepository.AddAsync(reminder);
+
+        string jobId = backgroundJobs.Schedule<ReminderJobService>(
+        j => j.ExecuteAsync(reminder.Id),
+        reminder.ReminderTime
+        );
+
+        reminder.HangfireJobId = jobId;
+        await reminderRepository.SaveChangesAsync();
 
         return ResponseHelper.Response(
             data: reminder.Id,
@@ -124,9 +142,24 @@ public class ReminderService(IReminderRepository reminderRepository, IUserReposi
         if (reminder == null)
             throw new ArgumentException(ErrorMessages.NotFound("Reminder"));
 
+        // DELETE OLD JOB
+        if (!string.IsNullOrEmpty(reminder.HangfireJobId))
+        {
+            BackgroundJob.Delete(reminder.HangfireJobId);
+        }
+
         mapper.Map(request, reminder);
 
         reminder.UpdatedAt = DateTime.UtcNow;
+        reminder.IsActive = true;
+
+        // SCHEDULE NEW JOB
+        string newJobId = BackgroundJob.Schedule<ReminderJobService>(
+            j => j.ExecuteAsync(reminder.Id),
+            reminder.ReminderTime
+        );
+
+        reminder.HangfireJobId = newJobId;
 
         reminderRepository.Update(reminder);
         await reminderRepository.SaveChangesAsync();
@@ -146,6 +179,11 @@ public class ReminderService(IReminderRepository reminderRepository, IUserReposi
 
         if (reminder == null)
             throw new ArgumentException(ErrorMessages.NotFound("Reminder"));
+
+        if (!string.IsNullOrEmpty(reminder.HangfireJobId))
+        {
+            BackgroundJob.Delete(reminder.HangfireJobId);
+        }
 
         reminderRepository.Delete(reminder);
         await reminderRepository.SaveChangesAsync();

@@ -21,7 +21,7 @@ public class LookupController(ILookupService lookupService) : ControllerBase
     [HttpGet("checkup-types")]
     public IActionResult GetCheckupTypes()
     {
-        Response<List<EnumLookupResponse>> checkupTypes =  lookupService.GetCheckupTypes();
+        Response<List<EnumLookupResponse>> checkupTypes = lookupService.GetCheckupTypes();
         return Ok(checkupTypes);
     }
 
@@ -44,5 +44,19 @@ public class LookupController(ILookupService lookupService) : ControllerBase
     {
         Response<List<EnumLookupResponse>> bloodGroups = lookupService.GetBloodGroups();
         return Ok(bloodGroups);
+    }
+
+    [HttpGet("recurrence-type")]
+    public IActionResult GetRecurrenceType()
+    {
+        Response<List<EnumLookupResponse>> recurrenceTypes = lookupService.GetRecurrenceType();
+        return Ok(recurrenceTypes);
+    }
+
+    [HttpGet("reminder-type")]
+    public async Task<IActionResult> GetAllReminderType()
+    {
+        Response<List<EnumLookupResponse>> reminderTypes = await lookupService.GetAllReminderTypeAsync();
+        return Ok(reminderTypes);
     }
 }

@@ -17,7 +17,7 @@ public class ReminderController(IReminderService reminderService)
 {
     [HttpPost]
     [Authorize(Roles = "Patient")]
-    public async Task<IActionResult> Create(CreateReminderRequest createReminderRequest)
+    public async Task<IActionResult> Create([FromBody]CreateReminderRequest createReminderRequest)
     {
         if (!ModelState.IsValid)
         {

@@ -22,7 +22,6 @@ public class CreateReminderRequest
 
     public RecurrenceType RecurrenceType { get; set; } = RecurrenceType.None;
 
-    [Range(1, 365, ErrorMessage = ValidationMessages.RECURRENCE_INTERVAL)]
     public int RecurrenceInterval { get; set; } = 1;
 
     public DateTime? RecurrenceEndDate { get; set; }
