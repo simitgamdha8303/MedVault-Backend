@@ -25,6 +25,5 @@ public class PatientProfileRequest
     [MaxLength(1000)]
     public string? EmergencyContactName { get; set; }
 
-    [Phone]
     public string? EmergencyContactPhone { get; set; }
 }

@@ -1,26 +1,23 @@
 using Microsoft.AspNetCore.SignalR;
 using MedVault.Infrastructure.Hubs;
 using MedVault.Models.Entities;
+using MedVault.Utilities.EmailServices;
+using MedVault.Data.IRepositories;
 
 
 namespace MedVault.Infrastructure.Notifications;
 
-public class SignalRNotificationDispatcher : INotificationDispatcher
+public class SignalRNotificationDispatcher(IHubContext<NotificationHub> hubContext, IEmailService emailService, IUserRepository userRepository) : INotificationDispatcher
 {
-    private readonly IHubContext<NotificationHub> _hubContext;
-
-    public SignalRNotificationDispatcher(
-        IHubContext<NotificationHub> hubContext)
-    {
-        _hubContext = hubContext;
-    }
-
     public async Task SendReminderAsync(Reminder reminder)
     {
-        string userId = reminder.PatientProfile.UserId.ToString();
+        if (reminder == null)
+            throw new ArgumentNullException(nameof(reminder));
 
-        await _hubContext.Clients
-            .Group(userId)
+        int userId = reminder.PatientProfile.UserId;
+
+        await hubContext.Clients
+            .Group(userId.ToString())
             .SendAsync("ReminderNotification", new
             {
                 reminderId = reminder.Id,
@@ -28,5 +25,15 @@ public class SignalRNotificationDispatcher : INotificationDispatcher
                 message = reminder.Description,
                 time = reminder.ReminderTime
             });
+
+        User? user = await userRepository.GetByIdAsync(userId);
+        if (user == null)
+            return;
+
+        if (string.IsNullOrWhiteSpace(user.Email))
+            throw new InvalidOperationException("Email is null or empty.");
+
+        await emailService.SendReminderAsync(user.Email, reminder);
     }
+
 }

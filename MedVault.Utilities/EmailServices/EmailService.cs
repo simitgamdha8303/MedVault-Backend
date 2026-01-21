@@ -2,6 +2,7 @@ namespace MedVault.Utilities.EmailServices;
 
 using MailKit.Net.Smtp;
 using MedVault.Models.Dtos;
+using MedVault.Models.Entities;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
@@ -24,6 +25,26 @@ public class EmailService : IEmailService
         message.Body = new TextPart("plain")
         {
             Text = $"Your OTP is {otp}. It expires in 5 minutes."
+        };
+
+        using var client = new SmtpClient();
+        await client.ConnectAsync(_settings.Host, _settings.Port, false);
+        await client.AuthenticateAsync(_settings.User, _settings.Password);
+        await client.SendAsync(message);
+        await client.DisconnectAsync(true);
+    }
+
+    public async Task SendReminderAsync(string email, Reminder reminder)
+    {
+        var message = new MimeMessage();
+        message.From.Add(new MailboxAddress("MedVault", _settings.User));
+        message.To.Add(MailboxAddress.Parse(email));
+        message.Subject = "⏰ Reminder!";
+
+        message.Body = new TextPart("plain")
+        {
+            Text =
+            $@"⏰ {reminder.Title} : {reminder.Description}"
         };
 
         using var client = new SmtpClient();

@@ -108,7 +108,7 @@ createReminderRequest.RecurrenceEndDate <= createReminderRequest.ReminderTime)
 
         List<ReminderResponse> reminders =
             (await reminderRepository.GetListAsync(
-                r => r.PatientId == patient.Id,
+                r => r.PatientId == patient.Id && r.IsActive == true,
                 r => new ReminderResponse
                 {
                     Id = r.Id,
