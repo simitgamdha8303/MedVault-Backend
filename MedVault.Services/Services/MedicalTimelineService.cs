@@ -218,7 +218,7 @@ public class MedicalTimelineService(
         return ResponseHelper.Response(
             data: timelines,
             succeeded: true,
-            message: "Medical timeline retrieved",
+            message: SuccessMessages.RETRIEVED,
             errors: null,
             statusCode: (int)HttpStatusCode.OK
         );

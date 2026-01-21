@@ -1,0 +1,65 @@
+using System.Security.Claims;
+using MedVault.Common.Messages;
+using MedVault.Common.Response;
+using MedVault.Models.Dtos.ResponseDtos;
+using MedVault.Services.IServices;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace MedVault.Web.Controllers;
+
+[ApiController]
+[Route("api/dashboard")]
+public class DashboardController(IDashboardService dashboardService) : ControllerBase
+{
+    [HttpGet("total-records")]
+    [Authorize]
+    public async Task<IActionResult> GetMedicalTimelineCount()
+    {
+        int? userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (userId == null)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
+
+        Response<int> medicalTimelineCount = await dashboardService.GetMedicalTimelineCount(userId);
+        return Ok(medicalTimelineCount);
+    }
+
+    [HttpGet("last-visit")]
+    [Authorize]
+    public async Task<IActionResult> GetPatientLastVisit()
+    {
+        int? userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (userId == null)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
+
+        Response<PatientLastVisitResponse> lastVisit = await dashboardService.GetLastVisit(userId);
+        return Ok(lastVisit);
+    }
+
+    [HttpGet("upcoming-appointment")]
+    [Authorize]
+    public async Task<IActionResult> GetUpcomingAppointment()
+    {
+        int? userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (userId == null)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
+
+        Response<string> upcomingAppointment = await dashboardService.GetUpcomingAppointment(userId);
+        return Ok(upcomingAppointment);
+    }
+
+    [HttpGet("visit-chart")]
+    [Authorize]
+    public async Task<IActionResult> GetVisitChart([FromQuery] string filter)
+    {
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        return Ok(await dashboardService.GetVisitChart(userId, filter));
+    }
+
+}
