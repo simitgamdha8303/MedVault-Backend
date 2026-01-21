@@ -152,7 +152,7 @@ public class UserService(IUserRepository userRepository, IMapper mapper, IUserRo
         return ResponseHelper.Response(
             data: enabled,
             succeeded: true,
-            message: "Two-factor authentication updated",
+            message: SuccessMessages.Updated("Two-factor authentication"),
             errors: null,
             statusCode: (int)HttpStatusCode.OK
         );

@@ -33,7 +33,7 @@ public class ReminderService(IReminderRepository reminderRepository, IUserReposi
 createReminderRequest.RecurrenceEndDate <= createReminderRequest.ReminderTime)
         {
             throw new ArgumentException(
-                "Recurrence end date must be after reminder time");
+                ErrorMessages.END_DATE_BEFORE);
         }
 
 
@@ -129,7 +129,7 @@ createReminderRequest.RecurrenceEndDate <= createReminderRequest.ReminderTime)
         return ResponseHelper.Response(
             reminders,
             true,
-            "Reminders retrieved",
+            SuccessMessages.RETRIEVED,
             null,
             (int)HttpStatusCode.OK
         );

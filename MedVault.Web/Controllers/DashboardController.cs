@@ -13,11 +13,11 @@ namespace MedVault.Web.Controllers;
 public class DashboardController(IDashboardService dashboardService) : ControllerBase
 {
     [HttpGet("total-records")]
-    [Authorize]
+    [Authorize(Roles = "Patient")]
     public async Task<IActionResult> GetMedicalTimelineCount()
     {
-        int? userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == null)
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (userId == 0)
         {
             throw new ArgumentException(ErrorMessages.NotFound("User"));
         }
@@ -27,11 +27,11 @@ public class DashboardController(IDashboardService dashboardService) : Controlle
     }
 
     [HttpGet("last-visit")]
-    [Authorize]
+    [Authorize(Roles = "Patient")]
     public async Task<IActionResult> GetPatientLastVisit()
     {
-        int? userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == null)
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (userId == 0)
         {
             throw new ArgumentException(ErrorMessages.NotFound("User"));
         }
@@ -41,11 +41,11 @@ public class DashboardController(IDashboardService dashboardService) : Controlle
     }
 
     [HttpGet("upcoming-appointment")]
-    [Authorize]
+    [Authorize(Roles = "Patient")]
     public async Task<IActionResult> GetUpcomingAppointment()
     {
-        int? userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == null)
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (userId == 0)
         {
             throw new ArgumentException(ErrorMessages.NotFound("User"));
         }
@@ -55,10 +55,14 @@ public class DashboardController(IDashboardService dashboardService) : Controlle
     }
 
     [HttpGet("visit-chart")]
-    [Authorize]
+    [Authorize(Roles = "Patient")]
     public async Task<IActionResult> GetVisitChart([FromQuery] string filter)
     {
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (userId == 0)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
         return Ok(await dashboardService.GetVisitChart(userId, filter));
     }
 

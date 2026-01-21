@@ -30,4 +30,7 @@ public static class ErrorMessages
 
     public const string FILE_VALIDATION =
         "Only JPG, PNG and PDF files are allowed";
+
+    public const string END_DATE_BEFORE =
+        "Recurrence end date must be after reminder time";
 }

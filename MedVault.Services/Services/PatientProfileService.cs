@@ -7,7 +7,6 @@ using MedVault.Data.IRepositories;
 using MedVault.Models.Dtos.RequestDtos;
 using MedVault.Models.Dtos.ResponseDtos;
 using MedVault.Models.Entities;
-using MedVault.Models.Enums;
 using MedVault.Services.IServices;
 
 namespace MedVault.Services.Services;

@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
 using System.Net;
 using AutoMapper;
-using Humanizer;
 using MedVault.Common.Helper;
 using MedVault.Common.Messages;
 using MedVault.Common.Response;

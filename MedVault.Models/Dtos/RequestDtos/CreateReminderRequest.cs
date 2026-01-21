@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using MedVault.Common.Messages;
 using MedVault.Models.Enums;
 
 namespace MedVault.Models.Dtos.RequestDtos;

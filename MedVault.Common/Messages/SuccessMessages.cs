@@ -48,4 +48,7 @@ public static class SuccessMessages
     public const string OTP_VERIFIED =
         "OTP verified successfully.";
 
+    public const string NO_APPOINTMENTS =
+   "No upcoming appointments";
+
 }

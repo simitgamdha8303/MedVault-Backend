@@ -1,5 +1,4 @@
 using System.Net;
-using AutoMapper;
 using MedVault.Common.Helper;
 using MedVault.Common.Messages;
 using MedVault.Common.Response;
@@ -10,7 +9,7 @@ using MedVault.Services.IServices;
 
 namespace MedVault.Services.Services;
 
-public class LookupService(IDoctorProfileRepository doctorProfileRepository, IMapper mapper, IHospitalRepository hospitalRepository, IReminderTypeRepository reminderTypeRepository) : ILookupService
+public class LookupService(IDoctorProfileRepository doctorProfileRepository, IHospitalRepository hospitalRepository, IReminderTypeRepository reminderTypeRepository) : ILookupService
 {
     public async Task<Response<List<EnumLookupResponse>>> GetAllDoctorAsync()
     {
@@ -28,8 +27,6 @@ public class LookupService(IDoctorProfileRepository doctorProfileRepository, IMa
         {
             throw new ArgumentException(ErrorMessages.NotFound("Doctor"));
         }
-
-
 
         return ResponseHelper.Response(
             data: doctorProfiles,

@@ -24,6 +24,11 @@ public class PatientProfileController(IPatientProfileService patientProfileServi
         }
 
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (userId == 0)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
+
         Response<string> createPatientProfileResponse = await patientProfileService.CreateAsync(patientProfileRequest, userId);
         return Ok(createPatientProfileResponse);
     }

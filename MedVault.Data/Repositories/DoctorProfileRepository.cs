@@ -100,5 +100,4 @@ public class DoctorProfileRepository(ApplicationDbContext context, IConfiguratio
             .ToListAsync();
     }
 
-
 }

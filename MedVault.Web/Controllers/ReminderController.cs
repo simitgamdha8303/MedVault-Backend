@@ -11,13 +11,12 @@ namespace MedVault.Web.Controllers;
 
 [ApiController]
 [Route("api/reminder")]
-[Authorize]
+ [Authorize(Roles = "Patient")]
 public class ReminderController(IReminderService reminderService)
     : ControllerBase
 {
     [HttpPost]
-    [Authorize(Roles = "Patient")]
-    public async Task<IActionResult> Create([FromBody]CreateReminderRequest createReminderRequest)
+    public async Task<IActionResult> Create([FromBody] CreateReminderRequest createReminderRequest)
     {
         if (!ModelState.IsValid)
         {
@@ -25,6 +24,10 @@ public class ReminderController(IReminderService reminderService)
         }
 
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (userId == 0)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
 
         Response<int> createReminderResponse = await reminderService.CreateAsync(createReminderRequest, userId);
 
@@ -48,6 +51,10 @@ public class ReminderController(IReminderService reminderService)
     public async Task<IActionResult> GetByPatient()
     {
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (userId == 0)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
 
         Response<List<ReminderResponse>> getByPatientRemindersResponse = await reminderService.GetByPatientAsync(userId);
 

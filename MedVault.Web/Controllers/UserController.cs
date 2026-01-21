@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using MedVault.Common.Messages;
 using MedVault.Common.Response;
 using MedVault.Models.Dtos.RequestDtos;
 using MedVault.Models.Dtos.ResponseDtos;
@@ -28,6 +29,10 @@ public class UserController(IUserService userService) : ControllerBase
     public async Task<IActionResult> GetMyProfile()
     {
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (userId == 0)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
 
         Response<UserProfileResponse>? userProfile = await userService.GetMyProfileAsync(userId);
         return Ok(userProfile);
@@ -44,6 +49,10 @@ public class UserController(IUserService userService) : ControllerBase
         }
 
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (userId == 0)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
 
         Response<bool> twoFactorResponse =
             await userService.UpdateTwoFactorAsync(userId, request.Enabled);
@@ -61,6 +70,10 @@ public class UserController(IUserService userService) : ControllerBase
         }
 
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (userId == 0)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
 
         Response<bool> updateProfileResponse = await userService.UpdateProfileAsync(userId, updateUserProfileRequest);
 

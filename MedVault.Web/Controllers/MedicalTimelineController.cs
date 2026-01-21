@@ -26,6 +26,10 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
         }
 
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (userId == 0)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
         Response<int> timelineCreateResponse = await medicalTimelineService.CreateAsync(medicalTimelineRequest, userId);
         return Ok(timelineCreateResponse);
     }
@@ -80,6 +84,10 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
         }
 
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (userId == 0)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
         Response<List<MedicalTimelineResponse>> timelineByPatientIdResponse = await medicalTimelineService.GetFilteredAsync(userId, searchRequest);
         return Ok(timelineByPatientIdResponse);
     }
@@ -94,6 +102,10 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
         }
 
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (userId == 0)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
 
         Response<int> addDocumentResponse = await medicalTimelineService.AddDocumentAsync(documentRequest, userId);
         return Ok(addDocumentResponse);
@@ -109,6 +121,10 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
         }
 
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (userId == 0)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
 
         Response<string> deleteManyResponse =
             await medicalTimelineService.DeleteManyDocumentAsync(request.DocumentIds, userId);

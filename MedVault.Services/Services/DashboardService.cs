@@ -13,20 +13,14 @@ namespace MedVault.Services.Services;
 
 public class DashboardService(IPatientProfileRepository patientProfileRepository, IMedicalTimelineRepository medicalTimelineRepository, IReminderRepository reminderRepository) : IDashboardService
 {
-    public async Task<Response<PatientLastVisitResponse>> GetLastVisit(int? userId)
+    public async Task<Response<PatientLastVisitResponse>> GetLastVisit(int userId)
     {
-        if (!userId.HasValue)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("UserId"));
-        }
 
         PatientProfile? patientProfile = await patientProfileRepository.FirstOrDefaultAsync(p => p.UserId == userId);
         if (patientProfile == null)
         {
             throw new ArgumentException(ErrorMessages.NotFound("Patient"));
         }
-
-
 
         PatientLastVisitResponse? lastVisit =
      await medicalTimelineRepository
@@ -55,7 +49,7 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
             return ResponseHelper.Response(
                 data: lastVisit,
                 succeeded: true,
-                message: "No visits found",
+                message: ErrorMessages.NotFound("Visit"),
                 errors: null,
                 statusCode: (int)HttpStatusCode.OK
             );
@@ -70,13 +64,8 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
         );
     }
 
-    public async Task<Response<int>> GetMedicalTimelineCount(int? userId)
+    public async Task<Response<int>> GetMedicalTimelineCount(int userId)
     {
-        if (!userId.HasValue)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("UserId"));
-        }
-
         PatientProfile? patientProfile = await patientProfileRepository.FirstOrDefaultAsync(p => p.UserId == userId);
         if (patientProfile == null)
         {
@@ -97,13 +86,11 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
 
     }
 
-    public async Task<Response<string>> GetUpcomingAppointment(int? userId)
+    public async Task<Response<string>> GetUpcomingAppointment(int userId)
     {
-        if (!userId.HasValue)
-            throw new ArgumentException(ErrorMessages.NotFound("UserId"));
 
         PatientProfile? patientProfile =
-            await patientProfileRepository.FirstOrDefaultAsync(p => p.UserId == userId.Value);
+            await patientProfileRepository.FirstOrDefaultAsync(p => p.UserId == userId);
 
         if (patientProfile == null)
             throw new ArgumentException(ErrorMessages.NotFound("Patient"));
@@ -124,7 +111,7 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
         if (!upcomingAppointment.HasValue)
         {
             return ResponseHelper.Response(
-                data: "No upcoming appointments",
+                data: SuccessMessages.NO_APPOINTMENTS,
                 succeeded: true,
                 message: SuccessMessages.RETRIEVED,
                 errors: null,
@@ -145,9 +132,12 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
      int userId,
      string filter)
     {
-        PatientProfile patient =
-            await patientProfileRepository.FirstOrDefaultAsync(p => p.UserId == userId)
-            ?? throw new ArgumentException("Patient not found");
+        PatientProfile? patient = await patientProfileRepository.FirstOrDefaultAsync(p => p.UserId == userId);
+
+        if (patient == null)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("Patient"));
+        }
 
         var data = await medicalTimelineRepository
             .Query()
@@ -171,8 +161,8 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
         // CURRENT MONTH
         if (filter == "current-month")
         {
-            var start = new DateOnly(today.Year, today.Month, 1);
-            var end = start.AddMonths(1).AddDays(-1);
+            DateOnly start = new DateOnly(today.Year, today.Month, 1);
+            DateOnly end = start.AddMonths(1).AddDays(-1);
 
             result = GetDateRange(start, end)
                         .Select(d =>
@@ -248,7 +238,7 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
             }
         }
 
-        return ResponseHelper.Response(result, true, "Retrieved", null, 200);
+        return ResponseHelper.Response(result, true, SuccessMessages.RETRIEVED, null, 200);
     }
 
     private static List<DateOnly> GetDateRange(DateOnly start, DateOnly end)
