@@ -66,4 +66,48 @@ public class DashboardController(IDashboardService dashboardService) : Controlle
         return Ok(await dashboardService.GetVisitChart(userId, filter));
     }
 
+    [HttpGet("last-checkup")]
+    public async Task<IActionResult> GetLastCheckup()
+    {
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (userId == 0)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
+        return Ok(await dashboardService.GetLastPatientCheckup(userId));
+    }
+
+    [HttpGet("total-checkups")]
+    public async Task<IActionResult> GetTotalCheckups()
+    {
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (userId == 0)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
+        return Ok(await dashboardService.GetTotalPatientCheckups(userId));
+    }
+
+    [HttpGet("top-patients")]
+    public async Task<IActionResult> GetTopPatients()
+    {
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (userId == 0)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
+        return Ok(await dashboardService.GetTopPatients(userId));
+    }
+
+    [HttpGet("doctor-visit-chart")]
+    public async Task<IActionResult> GetDoctorVisitChart([FromQuery] string filter)
+    {
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (userId == 0)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
+        return Ok(await dashboardService.GetPatientVisitChart(userId, filter));
+    }
+
 }
