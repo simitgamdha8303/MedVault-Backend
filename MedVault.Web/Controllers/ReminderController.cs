@@ -11,10 +11,23 @@ namespace MedVault.Web.Controllers;
 
 [ApiController]
 [Route("api/reminder")]
- [Authorize(Roles = "Patient")]
+[Authorize(Roles = "Patient")]
 public class ReminderController(IReminderService reminderService)
     : ControllerBase
 {
+
+    private int GetUserId()
+    {
+        string? userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrWhiteSpace(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
+
+        return userId;
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateReminderRequest createReminderRequest)
     {
@@ -23,13 +36,7 @@ public class ReminderController(IReminderService reminderService)
             return BadRequest(ModelState);
         }
 
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == 0)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("User"));
-        }
-
-        Response<int> createReminderResponse = await reminderService.CreateAsync(createReminderRequest, userId);
+        Response<int> createReminderResponse = await reminderService.CreateAsync(createReminderRequest, GetUserId());
 
         return Ok(createReminderResponse);
     }
@@ -50,13 +57,8 @@ public class ReminderController(IReminderService reminderService)
     [HttpGet("patient")]
     public async Task<IActionResult> GetByPatient()
     {
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == 0)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("User"));
-        }
 
-        Response<List<ReminderResponse>> getByPatientRemindersResponse = await reminderService.GetByPatientAsync(userId);
+        Response<List<ReminderResponse>> getByPatientRemindersResponse = await reminderService.GetByPatientAsync(GetUserId());
 
         return Ok(getByPatientRemindersResponse);
     }

@@ -14,6 +14,19 @@ namespace MedVault.Web.Controllers;
 public class PatientProfileController(IPatientProfileService patientProfileService)
     : ControllerBase
 {
+
+    private int GetUserId()
+    {
+        string? userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrWhiteSpace(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
+
+        return userId;
+    }
+
     [HttpPost]
     [Authorize(Roles = "Patient")]
     public async Task<IActionResult> Create([FromBody] PatientProfileRequest patientProfileRequest)
@@ -23,13 +36,7 @@ public class PatientProfileController(IPatientProfileService patientProfileServi
             return BadRequest(ModelState);
         }
 
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == 0)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("User"));
-        }
-
-        Response<string> createPatientProfileResponse = await patientProfileService.CreateAsync(patientProfileRequest, userId);
+        Response<string> createPatientProfileResponse = await patientProfileService.CreateAsync(patientProfileRequest, GetUserId());
         return Ok(createPatientProfileResponse);
     }
 

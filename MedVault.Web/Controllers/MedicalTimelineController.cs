@@ -15,6 +15,19 @@ namespace MedVault.Web.Controllers;
 public class MedicalTimelineController(IMedicalTimelineService medicalTimelineService)
     : ControllerBase
 {
+
+    private int GetUserId()
+    {
+        string? userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrWhiteSpace(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
+
+        return userId;
+    }
+
     [HttpPost]
     [Authorize(Roles = "Patient")]
     public async Task<IActionResult> Create([FromBody] MedicalTimelineRequest medicalTimelineRequest)
@@ -25,12 +38,7 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
             return BadRequest(ModelState);
         }
 
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == 0)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("User"));
-        }
-        Response<int> timelineCreateResponse = await medicalTimelineService.CreateAsync(medicalTimelineRequest, userId);
+        Response<int> timelineCreateResponse = await medicalTimelineService.CreateAsync(medicalTimelineRequest, GetUserId());
         return Ok(timelineCreateResponse);
     }
 
@@ -83,12 +91,7 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
             return BadRequest(ModelState);
         }
 
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == 0)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("User"));
-        }
-        Response<List<MedicalTimelineResponse>> timelineByPatientIdResponse = await medicalTimelineService.GetFilteredAsync(userId, searchRequest);
+        Response<List<MedicalTimelineResponse>> timelineByPatientIdResponse = await medicalTimelineService.GetFilteredAsync(GetUserId(), searchRequest);
         return Ok(timelineByPatientIdResponse);
     }
 
@@ -101,13 +104,7 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
             return BadRequest(ModelState);
         }
 
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == 0)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("User"));
-        }
-
-        Response<int> addDocumentResponse = await medicalTimelineService.AddDocumentAsync(documentRequest, userId);
+        Response<int> addDocumentResponse = await medicalTimelineService.AddDocumentAsync(documentRequest, GetUserId());
         return Ok(addDocumentResponse);
     }
 
@@ -120,14 +117,8 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
             return BadRequest(ModelState);
         }
 
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == 0)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("User"));
-        }
-
         Response<string> deleteManyResponse =
-            await medicalTimelineService.DeleteManyDocumentAsync(request.DocumentIds, userId);
+            await medicalTimelineService.DeleteManyDocumentAsync(request.DocumentIds, GetUserId());
 
         return Ok(deleteManyResponse);
     }

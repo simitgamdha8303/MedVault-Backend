@@ -12,6 +12,19 @@ namespace MedVault.Web.Controllers;
 [ApiController]
 public class UserController(IUserService userService) : ControllerBase
 {
+
+    private int GetUserId()
+    {
+        string? userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrWhiteSpace(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
+
+        return userId;
+    }
+
     [HttpPost("register")]
     public async Task<IActionResult> Register(UserRequest userRequest)
     {
@@ -28,13 +41,7 @@ public class UserController(IUserService userService) : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetMyProfile()
     {
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == 0)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("User"));
-        }
-
-        Response<UserProfileResponse>? userProfile = await userService.GetMyProfileAsync(userId);
+        Response<UserProfileResponse>? userProfile = await userService.GetMyProfileAsync(GetUserId());
         return Ok(userProfile);
     }
 
@@ -47,15 +54,8 @@ public class UserController(IUserService userService) : ControllerBase
         {
             return BadRequest(ModelState);
         }
-
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == 0)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("User"));
-        }
-
         Response<bool> twoFactorResponse =
-            await userService.UpdateTwoFactorAsync(userId, request.Enabled);
+            await userService.UpdateTwoFactorAsync(GetUserId(), request.Enabled);
 
         return Ok(twoFactorResponse);
     }
@@ -69,17 +69,9 @@ public class UserController(IUserService userService) : ControllerBase
             return BadRequest(ModelState);
         }
 
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == 0)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("User"));
-        }
-
-        Response<bool> updateProfileResponse = await userService.UpdateProfileAsync(userId, updateUserProfileRequest);
+        Response<bool> updateProfileResponse = await userService.UpdateProfileAsync(GetUserId(), updateUserProfileRequest);
 
         return Ok(updateProfileResponse);
     }
-
-
 
 }

@@ -14,6 +14,19 @@ namespace MedVault.Web.Controllers;
 [Authorize(Roles = "Doctor")]
 public class DoctorProfileController(IDoctorProfileService doctorProfileService) : ControllerBase
 {
+
+    private int GetUserId()
+    {
+        string? userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrWhiteSpace(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("User"));
+        }
+
+        return userId;
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create(DoctorProfileRequest doctorProfileRequest)
     {
@@ -22,12 +35,7 @@ public class DoctorProfileController(IDoctorProfileService doctorProfileService)
             return BadRequest(ModelState);
         }
 
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == 0)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("User"));
-        }
-        Response<string> createDoctorProfileResponse = await doctorProfileService.CreateAsync(doctorProfileRequest, userId);
+        Response<string> createDoctorProfileResponse = await doctorProfileService.CreateAsync(doctorProfileRequest, GetUserId());
         return Ok(createDoctorProfileResponse);
     }
 
@@ -76,14 +84,9 @@ public class DoctorProfileController(IDoctorProfileService doctorProfileService)
     [HttpGet("patients")]
     public async Task<IActionResult> GetPatientsByDoctor()
     {
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == 0)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("User"));
-        }
 
         Response<List<DoctorPatientListResponse>> response =
-            await doctorProfileService.GetPatientsByDoctorIdAsync(userId);
+            await doctorProfileService.GetPatientsByDoctorIdAsync(GetUserId());
 
         return Ok(response);
     }
@@ -123,13 +126,7 @@ public class DoctorProfileController(IDoctorProfileService doctorProfileService)
             return BadRequest(ModelState);
         }
 
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == 0)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("User"));
-        }
-
-        Response<DoctorProfileResponse> doctorProfileResponse = await doctorProfileService.AddDoctorProfileBySp(doctorProfileRequest, userId);
+        Response<DoctorProfileResponse> doctorProfileResponse = await doctorProfileService.AddDoctorProfileBySp(doctorProfileRequest, GetUserId());
         return Ok(doctorProfileResponse);
     }
 }

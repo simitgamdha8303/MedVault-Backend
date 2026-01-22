@@ -12,17 +12,24 @@ namespace MedVault.Web.Controllers;
 [Route("api/dashboard")]
 public class DashboardController(IDashboardService dashboardService) : ControllerBase
 {
-    [HttpGet("total-records")]
-    [Authorize(Roles = "Patient")]
-    public async Task<IActionResult> GetMedicalTimelineCount()
+
+    private int GetUserId()
     {
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == 0)
+        string? userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrWhiteSpace(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
         {
             throw new ArgumentException(ErrorMessages.NotFound("User"));
         }
 
-        Response<int> medicalTimelineCount = await dashboardService.GetMedicalTimelineCount(userId);
+        return userId;
+    }
+
+    [HttpGet("total-records")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> GetMedicalTimelineCount()
+    {
+        Response<int> medicalTimelineCount = await dashboardService.GetMedicalTimelineCount(GetUserId());
         return Ok(medicalTimelineCount);
     }
 
@@ -30,13 +37,7 @@ public class DashboardController(IDashboardService dashboardService) : Controlle
     [Authorize(Roles = "Patient")]
     public async Task<IActionResult> GetPatientLastVisit()
     {
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == 0)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("User"));
-        }
-
-        Response<PatientLastVisitResponse> lastVisit = await dashboardService.GetLastVisit(userId);
+        Response<PatientLastVisitResponse> lastVisit = await dashboardService.GetLastVisit(GetUserId());
         return Ok(lastVisit);
     }
 
@@ -44,13 +45,7 @@ public class DashboardController(IDashboardService dashboardService) : Controlle
     [Authorize(Roles = "Patient")]
     public async Task<IActionResult> GetUpcomingAppointment()
     {
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == 0)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("User"));
-        }
-
-        Response<string> upcomingAppointment = await dashboardService.GetUpcomingAppointment(userId);
+        Response<string> upcomingAppointment = await dashboardService.GetUpcomingAppointment(GetUserId());
         return Ok(upcomingAppointment);
     }
 
@@ -58,56 +53,36 @@ public class DashboardController(IDashboardService dashboardService) : Controlle
     [Authorize(Roles = "Patient")]
     public async Task<IActionResult> GetVisitChart([FromQuery] string filter)
     {
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == 0)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("User"));
-        }
-        return Ok(await dashboardService.GetVisitChart(userId, filter));
+
+        return Ok(await dashboardService.GetVisitChart(GetUserId(), filter));
     }
 
     [HttpGet("last-checkup")]
+    [Authorize(Roles = "Doctor")]
     public async Task<IActionResult> GetLastCheckup()
     {
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == 0)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("User"));
-        }
-        return Ok(await dashboardService.GetLastPatientCheckup(userId));
+        return Ok(await dashboardService.GetLastPatientCheckup(GetUserId()));
     }
 
     [HttpGet("total-checkups")]
+    [Authorize(Roles = "Doctor")]
     public async Task<IActionResult> GetTotalCheckups()
     {
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == 0)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("User"));
-        }
-        return Ok(await dashboardService.GetTotalPatientCheckups(userId));
+        return Ok(await dashboardService.GetTotalPatientCheckups(GetUserId()));
     }
 
     [HttpGet("top-patients")]
+    [Authorize(Roles = "Doctor")]
     public async Task<IActionResult> GetTopPatients()
     {
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == 0)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("User"));
-        }
-        return Ok(await dashboardService.GetTopPatients(userId));
+        return Ok(await dashboardService.GetTopPatients(GetUserId()));
     }
 
     [HttpGet("doctor-visit-chart")]
+    [Authorize(Roles = "Doctor")]
     public async Task<IActionResult> GetDoctorVisitChart([FromQuery] string filter)
     {
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        if (userId == 0)
-        {
-            throw new ArgumentException(ErrorMessages.NotFound("User"));
-        }
-        return Ok(await dashboardService.GetPatientVisitChart(userId, filter));
+        return Ok(await dashboardService.GetPatientVisitChart(GetUserId(), filter));
     }
 
 }
