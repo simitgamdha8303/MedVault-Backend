@@ -7,7 +7,7 @@ namespace MedVault.Models.Dtos.RequestDtos;
 public class PatientProfileRequest
 {
     [Required]
-    public DateOnly DateOfBirth { get; set; }
+    public DateTime DateOfBirth { get; set; }
 
     [Required]
     [EnumDataType(typeof(Gender), ErrorMessage = ValidationMessages.INVALID_GENDER)]

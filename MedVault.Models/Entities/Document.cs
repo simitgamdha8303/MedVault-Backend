@@ -25,7 +25,7 @@ public class Document
     public int MedicalTimelineId { get; set; }
 
     [Required]
-    public DateOnly DocumentDate { get; set; }
+    public DateTime DocumentDate { get; set; }
 
     [Required]
     public DateTime UploadedAt { get; set; }

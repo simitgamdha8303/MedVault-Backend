@@ -29,7 +29,7 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
          .OrderByDescending(m => m.EventDate)
          .Select(m => new PatientLastVisitResponse
          {
-             VisitDate = m.EventDate.ToString("dd MMM yyyy"),
+             VisitDate = m.EventDate.ToLocalTime().ToString("dd MMM yyyy"),
 
              DocotrName =
                  !string.IsNullOrEmpty(m.DoctorName)
@@ -102,7 +102,7 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
                 .Query()
                 .Where(r =>
                     r.PatientId == patientProfile.Id &&
-                    r.ReminderTime > now && r.ReminderTypeId == 2
+                    r.ReminderTime > now
                 )
                 .OrderBy(r => r.ReminderTime)
                 .Select(r => (DateTime?)r.ReminderTime)
@@ -164,10 +164,18 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
             DateOnly start = new DateOnly(today.Year, today.Month, 1);
             DateOnly end = start.AddMonths(1).AddDays(-1);
 
+            var filteredData = data.Where(x =>
+       DateOnly.FromDateTime(x.EventDate) >= start &&
+       DateOnly.FromDateTime(x.EventDate) <= end
+   ).ToList();
+
             result = GetDateRange(start, end)
                         .Select(d =>
                         {
-                            var items = data.Where(x => x.EventDate == d).ToList();
+                            var items = filteredData
+                .Where(x => DateOnly.FromDateTime(x.EventDate.ToLocalTime()) == d)
+                .ToList();
+
                             return new VisitChartPointResponse
                             {
                                 Label = d.Day.ToString(),

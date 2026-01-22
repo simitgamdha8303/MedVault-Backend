@@ -4,7 +4,7 @@ namespace MedVault.Models.Dtos.ResponseDtos;
 
 public class PatientProfileResponse
 {
-    public DateOnly DateOfBirth { get; set; }
+    public DateTime DateOfBirth { get; set; }
     public Gender Gender { get; set; }
     public string? GenderValue { get; set; }
 

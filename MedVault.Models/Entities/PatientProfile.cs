@@ -13,7 +13,7 @@ public class PatientProfile
     public int UserId { get; set; }
 
     [Required]
-    public DateOnly DateOfBirth { get; set; }
+    public DateTime DateOfBirth { get; set; }
 
     [Required]
     public Gender Gender { get; set; }

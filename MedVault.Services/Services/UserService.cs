@@ -107,7 +107,7 @@ public class UserService(IUserRepository userRepository, IMapper mapper, IUserRo
 
             PatientProfile = user.PatientProfile == null ? null : new PatientProfileResponse
             {
-                DateOfBirth = user.PatientProfile.DateOfBirth,
+                DateOfBirth = user.PatientProfile.DateOfBirth.ToLocalTime(),
                 GenderValue = user.PatientProfile.Gender.ToString(),
                 Gender = user.PatientProfile.Gender,
                 BloodGroupValue = user.PatientProfile.BloodGroup.ToString(),

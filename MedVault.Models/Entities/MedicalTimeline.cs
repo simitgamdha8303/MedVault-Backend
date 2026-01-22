@@ -22,7 +22,7 @@ public class MedicalTimeline
     public CheckupType CheckupType { get; set; }
 
     [Required]
-    public DateOnly EventDate { get; set; }
+    public DateTime EventDate { get; set; }
 
     public string? Notes { get; set; }
 

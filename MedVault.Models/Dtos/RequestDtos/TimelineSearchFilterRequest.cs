@@ -11,7 +11,7 @@ public class TimelineSearchFilterRequest
     [MaxLength(255)]
     public string? Doctor { get; set; }
 
-    public DateOnly? FromDate { get; set; }
+    public DateTime? FromDate { get; set; }
 
-    public DateOnly? ToDate { get; set; }
+    public DateTime? ToDate { get; set; }
 }

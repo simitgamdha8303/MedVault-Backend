@@ -15,7 +15,7 @@ public class MedicalTimelineRequest
     public CheckupType CheckupType { get; set; }
 
     [Required]
-    public DateOnly EventDate { get; set; }
+    public DateTime EventDate { get; set; }
 
     [MaxLength(1000)]
     public string? Notes { get; set; }

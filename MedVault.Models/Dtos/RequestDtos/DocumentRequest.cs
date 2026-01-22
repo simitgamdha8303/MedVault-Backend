@@ -16,6 +16,6 @@ public class DocumentRequest
     public string FileUrl { get; set; } = null!;
 
     [Required]
-    public DateOnly DocumentDate { get; set; }
+    public DateTime DocumentDate { get; set; }
 }
 

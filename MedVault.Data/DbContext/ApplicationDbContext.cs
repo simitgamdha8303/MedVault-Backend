@@ -35,6 +35,24 @@ namespace MedVault.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<ReminderType>().HasData(
+    new ReminderType { Id = 1, Name = "Lab Test" },
+    new ReminderType { Id = 2, Name = "Appointment" },
+    new ReminderType { Id = 3, Name = "Medicine" }
+);
+
+            modelBuilder.Entity<Hospital>().HasData(
+                 new Hospital { Id = 1, Name = "HCG" },
+                new Hospital { Id = 2, Name = "Svastik" },
+                new Hospital { Id = 3, Name = "Sterling" },
+                new Hospital { Id = 4, Name = "Apollo" },
+                new Hospital { Id = 5, Name = "Synergy" },
+                new Hospital { Id = 6, Name = "Wockhardt" },
+                new Hospital { Id = 7, Name = "AIIMS" }
+            );
+
+
+
             // User indexes
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
@@ -133,18 +151,6 @@ namespace MedVault.Data
                 .WithMany()
                 .HasForeignKey(o => o.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<PatientProfile>()
-                .Property(p => p.DateOfBirth)
-                .HasColumnType("date");
-
-            modelBuilder.Entity<MedicalTimeline>()
-                .Property(m => m.EventDate)
-                .HasColumnType("date");
-
-            modelBuilder.Entity<Document>()
-                .Property(d => d.DocumentDate)
-                .HasColumnType("date");
 
             modelBuilder.Entity<UserRole>()
                 .HasKey(ur => new { ur.UserId, ur.Role });

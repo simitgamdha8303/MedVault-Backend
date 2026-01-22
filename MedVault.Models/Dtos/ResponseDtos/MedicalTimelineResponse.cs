@@ -17,7 +17,7 @@ public class MedicalTimelineResponse
 
     public CheckupType CheckupTypeId { get; set; }
 
-    public DateOnly EventDate { get; set; }
+    public DateTime EventDate { get; set; }
 
     public string? Notes { get; set; }
 

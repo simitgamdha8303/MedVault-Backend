@@ -31,7 +31,7 @@ public class UpdateUserProfileRequest
     public int? HospitalId { get; set; }
 
     // Patient (nullable)
-    public DateOnly? DateOfBirth { get; set; }
+    public DateTime? DateOfBirth { get; set; }
     public int? Gender { get; set; }
     public int? BloodGroup { get; set; }
 
