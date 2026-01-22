@@ -152,7 +152,7 @@ public class LookupService(IDoctorProfileRepository doctorProfileRepository, IHo
 
         if (reminders == null)
         {
-            throw new ArgumentException(ErrorMessages.NotFound("Hospital"));
+            throw new ArgumentException(ErrorMessages.NotFound("reminders"));
         }
 
         return ResponseHelper.Response(

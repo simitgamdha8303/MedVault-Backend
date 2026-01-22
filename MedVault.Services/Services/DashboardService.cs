@@ -166,16 +166,16 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
             DateOnly end = start.AddMonths(1).AddDays(-1);
 
             var filteredData = data.Where(x =>
-       DateOnly.FromDateTime(x.EventDate) >= start &&
-       DateOnly.FromDateTime(x.EventDate) <= end
-   ).ToList();
+                DateOnly.FromDateTime(x.EventDate) >= start &&
+                DateOnly.FromDateTime(x.EventDate) <= end
+            ).ToList();
 
             result = GetDateRange(start, end)
                         .Select(d =>
                         {
                             var items = filteredData
-                .Where(x => DateOnly.FromDateTime(x.EventDate.ToLocalTime()) == d)
-                .ToList();
+                                .Where(x => DateOnly.FromDateTime(x.EventDate.ToLocalTime()) == d)
+                                .ToList();
 
                             return new VisitChartPointResponse
                             {
@@ -185,7 +185,7 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
                             };
                         })
                         .ToList();
-        }
+            }
 
         // LAST 3 MONTHS
         else if (filter == "last-3-months")
@@ -247,7 +247,7 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
             }
         }
 
-        return ResponseHelper.Response(result, true, SuccessMessages.RETRIEVED, null, 200);
+        return ResponseHelper.Response(result, true, SuccessMessages.RETRIEVED, null, (int)HttpStatusCode.OK);
     }
 
     private static List<DateOnly> GetDateRange(DateOnly start, DateOnly end)
@@ -278,7 +278,7 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
             })
             .FirstOrDefaultAsync();
 
-        return ResponseHelper.Response(lastVisit, true, SuccessMessages.RETRIEVED, null, 200);
+        return ResponseHelper.Response(lastVisit, true, SuccessMessages.RETRIEVED, null, (int)HttpStatusCode.OK);
     }
 
     public async Task<Response<int>> GetTotalPatientCheckups(int userId)
@@ -293,7 +293,7 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
             .Query()
             .CountAsync(m => m.DoctorProfileId == doctor.Id);
 
-        return ResponseHelper.Response(count, true, SuccessMessages.RETRIEVED, null, 200);
+        return ResponseHelper.Response(count, true, SuccessMessages.RETRIEVED, null, (int)HttpStatusCode.OK);
     }
 
     public async Task<Response<List<TopPatientResponse>>> GetTopPatients(int userId)
@@ -321,7 +321,7 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
             .Take(3)
             .ToListAsync();
 
-        return ResponseHelper.Response(topPatients, true, SuccessMessages.RETRIEVED, null, 200);
+        return ResponseHelper.Response(topPatients, true, SuccessMessages.RETRIEVED, null, (int)HttpStatusCode.OK);
     }
 
     public async Task<Response<List<DoctorVisitChartPointResponse>>> GetPatientVisitChart(

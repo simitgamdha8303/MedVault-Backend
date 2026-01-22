@@ -13,20 +13,14 @@ namespace MedVault.Data
         // DbSets
 
         public DbSet<User> Users => Set<User>();
-
         public DbSet<PatientProfile> PatientProfiles => Set<PatientProfile>();
         public DbSet<DoctorProfile> DoctorProfiles => Set<DoctorProfile>();
         public DbSet<Hospital> Hospitals => Set<Hospital>();
-
         public DbSet<Reminder> Reminders => Set<Reminder>();
         public DbSet<ReminderType> ReminderTypes => Set<ReminderType>();
-
         public DbSet<MedicalTimeline> MedicalTimelines => Set<MedicalTimeline>();
-
         public DbSet<Document> Documents => Set<Document>();
-
         public DbSet<QrShare> QrShares => Set<QrShare>();
-
         public DbSet<OtpVerification> OtpVerifications => Set<OtpVerification>();
         public DbSet<UserRole> UserRoles => Set<UserRole>();
 
@@ -36,13 +30,13 @@ namespace MedVault.Data
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<ReminderType>().HasData(
-    new ReminderType { Id = 1, Name = "Lab Test" },
-    new ReminderType { Id = 2, Name = "Appointment" },
-    new ReminderType { Id = 3, Name = "Medicine" }
-);
+                new ReminderType { Id = 1, Name = "Lab Test" },
+                new ReminderType { Id = 2, Name = "Appointment" },
+                new ReminderType { Id = 3, Name = "Medicine" }
+            );
 
             modelBuilder.Entity<Hospital>().HasData(
-                 new Hospital { Id = 1, Name = "HCG" },
+                new Hospital { Id = 1, Name = "HCG" },
                 new Hospital { Id = 2, Name = "Svastik" },
                 new Hospital { Id = 3, Name = "Sterling" },
                 new Hospital { Id = 4, Name = "Apollo" },
@@ -50,7 +44,6 @@ namespace MedVault.Data
                 new Hospital { Id = 6, Name = "Wockhardt" },
                 new Hospital { Id = 7, Name = "AIIMS" }
             );
-
 
 
             // User indexes
@@ -83,7 +76,7 @@ namespace MedVault.Data
                 .HasForeignKey(d => d.HospitalId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // UserRole (ENUM-based RBAC)
+            // UserRole (ENUM-based Many–Many)
             modelBuilder.Entity<UserRole>()
                 .HasKey(ur => new { ur.UserId, ur.Role });
 

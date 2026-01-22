@@ -10,8 +10,7 @@ public class ReminderJobService(
 {
     public async Task ExecuteAsync(int reminderId)
     {
-        Reminder? reminder = await reminderRepository
-            .GetReminderWithPatientAsync(reminderId);
+        Reminder? reminder = await reminderRepository.GetReminderWithPatientAsync(reminderId);
 
         if (reminder == null || !reminder.IsActive)
             return;

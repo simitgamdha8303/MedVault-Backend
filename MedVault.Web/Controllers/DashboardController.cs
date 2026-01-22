@@ -10,6 +10,7 @@ namespace MedVault.Web.Controllers;
 
 [ApiController]
 [Route("api/dashboard")]
+[Authorize]
 public class DashboardController(IDashboardService dashboardService) : ControllerBase
 {
 
