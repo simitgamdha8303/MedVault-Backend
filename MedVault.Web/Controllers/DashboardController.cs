@@ -53,36 +53,40 @@ public class DashboardController(IDashboardService dashboardService) : Controlle
     [Authorize(Roles = "Patient")]
     public async Task<IActionResult> GetVisitChart([FromQuery] string filter)
     {
-
-        return Ok(await dashboardService.GetVisitChart(GetUserId(), filter));
+        Response<List<VisitChartPointResponse>> visitChart = await dashboardService.GetVisitChart(GetUserId(), filter);
+        return Ok(visitChart);
     }
 
     [HttpGet("last-checkup")]
     [Authorize(Roles = "Doctor")]
     public async Task<IActionResult> GetLastCheckup()
     {
-        return Ok(await dashboardService.GetLastPatientCheckup(GetUserId()));
+        Response<DoctorLastCheckupResponse> lastCheckupResponse = await dashboardService.GetLastPatientCheckup(GetUserId());
+        return Ok(lastCheckupResponse);
     }
 
     [HttpGet("total-checkups")]
     [Authorize(Roles = "Doctor")]
     public async Task<IActionResult> GetTotalCheckups()
     {
-        return Ok(await dashboardService.GetTotalPatientCheckups(GetUserId()));
+        Response<int> totalCheckupsResponse = await dashboardService.GetTotalPatientCheckups(GetUserId());
+        return Ok(totalCheckupsResponse);
     }
 
     [HttpGet("top-patients")]
     [Authorize(Roles = "Doctor")]
     public async Task<IActionResult> GetTopPatients()
     {
-        return Ok(await dashboardService.GetTopPatients(GetUserId()));
+        Response<List<TopPatientResponse>> topPatientsResponse = await dashboardService.GetTopPatients(GetUserId());
+        return Ok(topPatientsResponse);
     }
 
     [HttpGet("doctor-visit-chart")]
     [Authorize(Roles = "Doctor")]
     public async Task<IActionResult> GetDoctorVisitChart([FromQuery] string filter)
     {
-        return Ok(await dashboardService.GetPatientVisitChart(GetUserId(), filter));
+        Response<List<DoctorVisitChartPointResponse>> visitChart = await dashboardService.GetPatientVisitChart(GetUserId(), filter);
+        return Ok(visitChart);
     }
 
 }

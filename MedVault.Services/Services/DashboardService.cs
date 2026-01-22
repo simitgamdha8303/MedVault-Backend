@@ -261,8 +261,11 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
 
     public async Task<Response<DoctorLastCheckupResponse>> GetLastPatientCheckup(int userId)
     {
-        DoctorProfile? doctor = await doctorProfileRepository.FirstOrDefaultAsync(d => d.UserId == userId)
-           ?? throw new ArgumentException(ErrorMessages.NotFound("Doctor"));
+        DoctorProfile? doctor = await doctorProfileRepository.FirstOrDefaultAsync(d => d.UserId == userId);
+        if (doctor == null)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("Doctor"));
+        }
 
         DoctorLastCheckupResponse? lastVisit = await medicalTimelineRepository
             .Query()
@@ -280,8 +283,11 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
 
     public async Task<Response<int>> GetTotalPatientCheckups(int userId)
     {
-        DoctorProfile? doctor = await doctorProfileRepository.FirstOrDefaultAsync(d => d.UserId == userId)
-            ?? throw new ArgumentException(ErrorMessages.NotFound("Doctor"));
+        DoctorProfile? doctor = await doctorProfileRepository.FirstOrDefaultAsync(d => d.UserId == userId);
+        if (doctor == null)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("Doctor"));
+        }
 
         int count = await medicalTimelineRepository
             .Query()
@@ -292,8 +298,11 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
 
     public async Task<Response<List<TopPatientResponse>>> GetTopPatients(int userId)
     {
-        DoctorProfile? doctor = await doctorProfileRepository.FirstOrDefaultAsync(d => d.UserId == userId)
-            ?? throw new ArgumentException(ErrorMessages.NotFound("Doctor"));
+        DoctorProfile? doctor = await doctorProfileRepository.FirstOrDefaultAsync(d => d.UserId == userId);
+        if (doctor == null)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("Doctor"));
+        }
 
         List<TopPatientResponse>? topPatients = await medicalTimelineRepository
             .Query()
@@ -319,8 +328,11 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
         int userId,
         string filter)
     {
-        DoctorProfile? doctor = await doctorProfileRepository.FirstOrDefaultAsync(d => d.UserId == userId)
-            ?? throw new ArgumentException(ErrorMessages.NotFound("Doctor"));
+        DoctorProfile? doctor = await doctorProfileRepository.FirstOrDefaultAsync(d => d.UserId == userId);
+        if (doctor == null)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("Doctor"));
+        }
 
         var data = await medicalTimelineRepository
             .Query()
