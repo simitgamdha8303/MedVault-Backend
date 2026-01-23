@@ -36,7 +36,7 @@ public class DoctorProfileController(IDoctorProfileService doctorProfileService)
         }
 
         Response<string> createDoctorProfileResponse = await doctorProfileService.CreateAsync(doctorProfileRequest, GetUserId());
-        return Ok(createDoctorProfileResponse);
+        return StatusCode(createDoctorProfileResponse.StatusCode, createDoctorProfileResponse);
     }
 
     [HttpGet("{id:int}")]
@@ -48,7 +48,7 @@ public class DoctorProfileController(IDoctorProfileService doctorProfileService)
         }
 
         Response<DoctorProfileResponse> getDoctorProfileResponse = await doctorProfileService.GetByIdAsync(id);
-        return Ok(getDoctorProfileResponse);
+        return StatusCode(getDoctorProfileResponse.StatusCode, getDoctorProfileResponse);
     }
 
     [HttpPut("{id:int}")]
@@ -65,7 +65,7 @@ public class DoctorProfileController(IDoctorProfileService doctorProfileService)
         }
 
         Response<string> updateDoctorProfileResponse = await doctorProfileService.UpdateAsync(id, doctorProfileRequest);
-        return Ok(updateDoctorProfileResponse);
+        return StatusCode(updateDoctorProfileResponse.StatusCode, updateDoctorProfileResponse);
     }
 
 
@@ -78,31 +78,31 @@ public class DoctorProfileController(IDoctorProfileService doctorProfileService)
         }
 
         Response<string> deleteDoctorProfileResponse = await doctorProfileService.DeleteAsync(id);
-        return Ok(deleteDoctorProfileResponse);
+        return StatusCode(deleteDoctorProfileResponse.StatusCode, deleteDoctorProfileResponse);
     }
 
     [HttpGet("patients")]
     public async Task<IActionResult> GetPatientsByDoctor()
     {
 
-        Response<List<DoctorPatientListResponse>> response =
+        Response<List<DoctorPatientListResponse>> doctorPatientsResponse =
             await doctorProfileService.GetPatientsByDoctorIdAsync(GetUserId());
 
-        return Ok(response);
+        return StatusCode(doctorPatientsResponse.StatusCode, doctorPatientsResponse);
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
         Response<List<DoctorListResponse>>? doctorListResponse = await doctorProfileService.GetAllAsync();
-        return Ok(doctorListResponse);
+        return StatusCode(doctorListResponse.StatusCode, doctorListResponse);
     }
 
     [HttpGet("hospitals-by-fn")]
     public async Task<IActionResult> GetHospitals()
     {
         Response<List<HospitalResponse>>? hospitalListResponse = await doctorProfileService.GetAllHospitalByFnAsync();
-        return Ok(hospitalListResponse);
+        return StatusCode(hospitalListResponse.StatusCode, hospitalListResponse);
     }
 
     [HttpPost("add-hospital-by-sp")]
@@ -115,7 +115,7 @@ public class DoctorProfileController(IDoctorProfileService doctorProfileService)
 
         Response<int> addHospitalResponse = await doctorProfileService.AddHospitalBySp(hospitalCreateRequest);
 
-        return Ok(addHospitalResponse);
+        return StatusCode(addHospitalResponse.StatusCode, addHospitalResponse);
     }
 
     [HttpPost("add-doctor-by-sp")]
@@ -127,6 +127,6 @@ public class DoctorProfileController(IDoctorProfileService doctorProfileService)
         }
 
         Response<DoctorProfileResponse> doctorProfileResponse = await doctorProfileService.AddDoctorProfileBySp(doctorProfileRequest, GetUserId());
-        return Ok(doctorProfileResponse);
+        return StatusCode(doctorProfileResponse.StatusCode, doctorProfileResponse);
     }
 }

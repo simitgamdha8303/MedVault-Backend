@@ -24,7 +24,7 @@ public class AuthController(IAuthService authService, Cloudinary cloudinary, IOp
         }
 
         Response<LoginResponse> loginUserResponse = await authService.LoginUserAsync(loginRequest);
-        return Ok(loginUserResponse);
+        return StatusCode(loginUserResponse.StatusCode, loginUserResponse);
     }
 
     [HttpPost("verify-otp")]
@@ -36,7 +36,7 @@ public class AuthController(IAuthService authService, Cloudinary cloudinary, IOp
         }
 
         Response<OtpResponse> verifyOtpResponse = await authService.VerifyOtpAsync(request);
-        return Ok(verifyOtpResponse);
+        return StatusCode(verifyOtpResponse.StatusCode, verifyOtpResponse);
     }
 
     [HttpPost("resend-otp")]
@@ -48,7 +48,7 @@ public class AuthController(IAuthService authService, Cloudinary cloudinary, IOp
         }
 
         Response<string> resendOtpResponse = await authService.ResendOtpAsync(request);
-        return Ok(resendOtpResponse);
+        return StatusCode(resendOtpResponse.StatusCode, resendOtpResponse);
     }
 
     [HttpPost("signature")]

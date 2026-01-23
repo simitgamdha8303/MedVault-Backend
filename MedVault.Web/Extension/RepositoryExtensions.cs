@@ -23,6 +23,7 @@ public static class RepositoryExtensions
         builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
         builder.Services.AddScoped<IReminderRepository, ReminderRepository>();
         builder.Services.AddScoped<IReminderTypeRepository, ReminderTypeRepository>();
+        builder.Services.AddScoped<IQrShareRepository, QrShareRepository>();
 
 
 

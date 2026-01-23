@@ -38,7 +38,7 @@ public class ReminderController(IReminderService reminderService)
 
         Response<int> createReminderResponse = await reminderService.CreateAsync(createReminderRequest, GetUserId());
 
-        return Ok(createReminderResponse);
+        return StatusCode(createReminderResponse.StatusCode, createReminderResponse);
     }
 
     [HttpGet("{id:int}")]
@@ -51,7 +51,7 @@ public class ReminderController(IReminderService reminderService)
 
         Response<ReminderResponse> getByIdReminderResponse = await reminderService.GetByIdAsync(id);
 
-        return Ok(getByIdReminderResponse);
+        return StatusCode(getByIdReminderResponse.StatusCode, getByIdReminderResponse);
     }
 
     [HttpGet("patient")]
@@ -60,7 +60,7 @@ public class ReminderController(IReminderService reminderService)
 
         Response<List<ReminderResponse>> getByPatientRemindersResponse = await reminderService.GetByPatientAsync(GetUserId());
 
-        return Ok(getByPatientRemindersResponse);
+        return StatusCode(getByPatientRemindersResponse.StatusCode, getByPatientRemindersResponse);
     }
 
     [HttpPut("{id:int}")]
@@ -78,7 +78,7 @@ public class ReminderController(IReminderService reminderService)
 
         Response<int> updateReminderResponse = await reminderService.UpdateAsync(id, updateReminderRequest);
 
-        return Ok(updateReminderResponse);
+        return StatusCode(updateReminderResponse.StatusCode, updateReminderResponse);
     }
 
     [HttpDelete("{id:int}")]
@@ -91,6 +91,6 @@ public class ReminderController(IReminderService reminderService)
 
         Response<string> deleteReminderResponse = await reminderService.DeleteAsync(id);
 
-        return Ok(deleteReminderResponse);
+        return StatusCode(deleteReminderResponse.StatusCode, deleteReminderResponse);
     }
 }

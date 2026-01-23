@@ -34,7 +34,7 @@ public class UserController(IUserService userService) : ControllerBase
         }
 
         Response<string> registerUserResponse = await userService.RegisterUserAsync(userRequest);
-        return Ok(registerUserResponse);
+        return StatusCode(registerUserResponse.StatusCode, registerUserResponse);
     }
 
     [HttpGet("me")]
@@ -42,7 +42,7 @@ public class UserController(IUserService userService) : ControllerBase
     public async Task<IActionResult> GetMyProfile()
     {
         Response<UserProfileResponse>? userProfile = await userService.GetMyProfileAsync(GetUserId());
-        return Ok(userProfile);
+        return StatusCode(userProfile.StatusCode, userProfile);
     }
 
     [HttpPut("two-factor")]
@@ -57,7 +57,7 @@ public class UserController(IUserService userService) : ControllerBase
         Response<bool> twoFactorResponse =
             await userService.UpdateTwoFactorAsync(GetUserId(), request.Enabled);
 
-        return Ok(twoFactorResponse);
+        return StatusCode(twoFactorResponse.StatusCode, twoFactorResponse);
     }
 
     [HttpPut("profile")]
@@ -71,7 +71,7 @@ public class UserController(IUserService userService) : ControllerBase
 
         Response<bool> updateProfileResponse = await userService.UpdateProfileAsync(GetUserId(), updateUserProfileRequest);
 
-        return Ok(updateProfileResponse);
+        return StatusCode(updateProfileResponse.StatusCode, updateProfileResponse);
     }
 
 }

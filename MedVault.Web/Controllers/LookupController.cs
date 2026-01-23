@@ -15,48 +15,48 @@ public class LookupController(ILookupService lookupService) : ControllerBase
     public async Task<IActionResult> GetAllDoctor()
     {
         Response<List<EnumLookupResponse>> doctorList = await lookupService.GetAllDoctorAsync();
-        return Ok(doctorList);
+        return StatusCode(doctorList.StatusCode, doctorList);
     }
 
     [HttpGet("checkup-types")]
     public IActionResult GetCheckupTypes()
     {
         Response<List<EnumLookupResponse>> checkupTypes = lookupService.GetCheckupTypes();
-        return Ok(checkupTypes);
+        return StatusCode(checkupTypes.StatusCode, checkupTypes);
     }
 
     [HttpGet("genders")]
     public IActionResult GetGenders()
     {
         Response<List<EnumLookupResponse>> genders = lookupService.GetGenders();
-        return Ok(genders);
+        return StatusCode(genders.StatusCode, genders);
     }
 
     [HttpGet("hospitals")]
     public async Task<IActionResult> GetAllHospital()
     {
         Response<List<EnumLookupResponse>> hospitalList = await lookupService.GetAllHospitalAsync();
-        return Ok(hospitalList);
+        return StatusCode(hospitalList.StatusCode, hospitalList);
     }
 
     [HttpGet("blood-groups")]
     public IActionResult GetBloodGroups()
     {
         Response<List<EnumLookupResponse>> bloodGroups = lookupService.GetBloodGroups();
-        return Ok(bloodGroups);
+        return StatusCode(bloodGroups.StatusCode, bloodGroups);
     }
 
     [HttpGet("recurrence-type")]
     public IActionResult GetRecurrenceType()
     {
         Response<List<EnumLookupResponse>> recurrenceTypes = lookupService.GetRecurrenceType();
-        return Ok(recurrenceTypes);
+        return StatusCode(recurrenceTypes.StatusCode, recurrenceTypes);
     }
 
     [HttpGet("reminder-type")]
     public async Task<IActionResult> GetAllReminderType()
     {
         Response<List<EnumLookupResponse>> reminderTypes = await lookupService.GetAllReminderTypeAsync();
-        return Ok(reminderTypes);
+        return StatusCode(reminderTypes.StatusCode, reminderTypes);
     }
 }

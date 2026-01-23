@@ -37,7 +37,7 @@ public class PatientProfileController(IPatientProfileService patientProfileServi
         }
 
         Response<string> createPatientProfileResponse = await patientProfileService.CreateAsync(patientProfileRequest, GetUserId());
-        return Ok(createPatientProfileResponse);
+        return StatusCode(createPatientProfileResponse.StatusCode, createPatientProfileResponse);
     }
 
     [HttpGet("{id:int}")]
@@ -50,7 +50,7 @@ public class PatientProfileController(IPatientProfileService patientProfileServi
         }
 
         Response<PatientProfileResponse> patientProfileResponse = await patientProfileService.GetByIdAsync(id);
-        return Ok(patientProfileResponse);
+        return StatusCode(patientProfileResponse.StatusCode, patientProfileResponse);
     }
 
     [HttpPut("{id:int}")]
@@ -68,7 +68,7 @@ public class PatientProfileController(IPatientProfileService patientProfileServi
         }
 
         Response<string> updatePatientProfileResponse = await patientProfileService.UpdateAsync(id, patientProfileRequest);
-        return Ok(updatePatientProfileResponse);
+        return StatusCode(updatePatientProfileResponse.StatusCode, updatePatientProfileResponse);
     }
 
     [HttpDelete("{id:int}")]
@@ -81,6 +81,6 @@ public class PatientProfileController(IPatientProfileService patientProfileServi
         }
 
         Response<string> deletePatientProfile = await patientProfileService.DeleteAsync(id);
-        return Ok(deletePatientProfile);
+        return StatusCode(deletePatientProfile.StatusCode, deletePatientProfile);
     }
 }

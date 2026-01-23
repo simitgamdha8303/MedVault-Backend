@@ -146,16 +146,9 @@ namespace MedVault.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<UserRole>()
-                .HasKey(ur => new { ur.UserId, ur.Role });
-
-            modelBuilder.Entity<UserRole>()
                 .HasOne(ur => ur.User)
                 .WithMany(u => u.UserRoles)
                 .HasForeignKey(ur => ur.UserId);
-
-            modelBuilder.Entity<UserRole>()
-                .Property(ur => ur.Role)
-                .HasConversion<int>();
 
 
         }

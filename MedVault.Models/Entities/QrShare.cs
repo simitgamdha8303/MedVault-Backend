@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 public class QrShare
 {
     [Key]
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     [Required, ForeignKey(nameof(PatientProfile))]
     public int PatientId { get; set; }
@@ -13,7 +13,8 @@ public class QrShare
     [Required, ForeignKey(nameof(DoctorProfile))]
     public int DoctorId { get; set; }
 
-    [Required, MaxLength(255)]
+    [Required]
+    [Column(TypeName = "text")]
     public string AccessToken { get; set; } = null!;
 
     [Required]
@@ -21,6 +22,11 @@ public class QrShare
 
     [Required]
     public bool IsActive { get; set; }
+
+    [Required]
+    public bool IsUsed { get; set; } = false;
+
+    public DateTime? UsedAt { get; set; }
 
     [Required]
     public DateTime CreatedAt { get; set; }

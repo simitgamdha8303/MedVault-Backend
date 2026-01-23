@@ -31,7 +31,7 @@ public class DashboardController(IDashboardService dashboardService) : Controlle
     public async Task<IActionResult> GetMedicalTimelineCount()
     {
         Response<int> medicalTimelineCount = await dashboardService.GetMedicalTimelineCount(GetUserId());
-        return Ok(medicalTimelineCount);
+        return StatusCode(medicalTimelineCount.StatusCode, medicalTimelineCount);
     }
 
     [HttpGet("last-visit")]
@@ -39,7 +39,7 @@ public class DashboardController(IDashboardService dashboardService) : Controlle
     public async Task<IActionResult> GetPatientLastVisit()
     {
         Response<PatientLastVisitResponse> lastVisit = await dashboardService.GetLastVisit(GetUserId());
-        return Ok(lastVisit);
+        return StatusCode(lastVisit.StatusCode, lastVisit);
     }
 
     [HttpGet("upcoming-appointment")]
@@ -47,7 +47,7 @@ public class DashboardController(IDashboardService dashboardService) : Controlle
     public async Task<IActionResult> GetUpcomingAppointment()
     {
         Response<string> upcomingAppointment = await dashboardService.GetUpcomingAppointment(GetUserId());
-        return Ok(upcomingAppointment);
+        return StatusCode(upcomingAppointment.StatusCode, upcomingAppointment);
     }
 
     [HttpGet("visit-chart")]
@@ -55,7 +55,7 @@ public class DashboardController(IDashboardService dashboardService) : Controlle
     public async Task<IActionResult> GetVisitChart([FromQuery] string filter)
     {
         Response<List<VisitChartPointResponse>> visitChart = await dashboardService.GetVisitChart(GetUserId(), filter);
-        return Ok(visitChart);
+        return StatusCode(visitChart.StatusCode, visitChart);
     }
 
     [HttpGet("last-checkup")]
@@ -63,7 +63,7 @@ public class DashboardController(IDashboardService dashboardService) : Controlle
     public async Task<IActionResult> GetLastCheckup()
     {
         Response<DoctorLastCheckupResponse> lastCheckupResponse = await dashboardService.GetLastPatientCheckup(GetUserId());
-        return Ok(lastCheckupResponse);
+        return StatusCode(lastCheckupResponse.StatusCode, lastCheckupResponse);
     }
 
     [HttpGet("total-checkups")]
@@ -71,7 +71,7 @@ public class DashboardController(IDashboardService dashboardService) : Controlle
     public async Task<IActionResult> GetTotalCheckups()
     {
         Response<int> totalCheckupsResponse = await dashboardService.GetTotalPatientCheckups(GetUserId());
-        return Ok(totalCheckupsResponse);
+        return StatusCode(totalCheckupsResponse.StatusCode, totalCheckupsResponse);
     }
 
     [HttpGet("top-patients")]
@@ -79,7 +79,7 @@ public class DashboardController(IDashboardService dashboardService) : Controlle
     public async Task<IActionResult> GetTopPatients()
     {
         Response<List<TopPatientResponse>> topPatientsResponse = await dashboardService.GetTopPatients(GetUserId());
-        return Ok(topPatientsResponse);
+        return StatusCode(topPatientsResponse.StatusCode, topPatientsResponse);
     }
 
     [HttpGet("doctor-visit-chart")]
@@ -87,7 +87,7 @@ public class DashboardController(IDashboardService dashboardService) : Controlle
     public async Task<IActionResult> GetDoctorVisitChart([FromQuery] string filter)
     {
         Response<List<DoctorVisitChartPointResponse>> visitChart = await dashboardService.GetPatientVisitChart(GetUserId(), filter);
-        return Ok(visitChart);
+        return StatusCode(visitChart.StatusCode, visitChart);
     }
 
 }

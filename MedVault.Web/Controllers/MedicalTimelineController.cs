@@ -39,7 +39,7 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
         }
 
         Response<int> timelineCreateResponse = await medicalTimelineService.CreateAsync(medicalTimelineRequest, GetUserId());
-        return Ok(timelineCreateResponse);
+        return StatusCode(timelineCreateResponse.StatusCode, timelineCreateResponse);
     }
 
     [HttpGet("{id:int}")]
@@ -51,7 +51,7 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
         }
 
         Response<MedicalTimelineResponse> timelineByIdResponse = await medicalTimelineService.GetByIdAsync(id);
-        return Ok(timelineByIdResponse);
+        return StatusCode(timelineByIdResponse.StatusCode, timelineByIdResponse);
     }
 
     [HttpPut("{id:int}")]
@@ -68,7 +68,7 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
         }
 
         Response<int> timelineUpdateResponse = await medicalTimelineService.UpdateAsync(id, medicalTimelineRequest);
-        return Ok(timelineUpdateResponse);
+        return StatusCode(timelineUpdateResponse.StatusCode, timelineUpdateResponse);
     }
 
     [HttpDelete("{id:int}")]
@@ -80,7 +80,7 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
         }
 
         Response<string> timelineDeleteResponse = await medicalTimelineService.DeleteAsync(id);
-        return Ok(timelineDeleteResponse);
+        return StatusCode(timelineDeleteResponse.StatusCode, timelineDeleteResponse);
     }
 
     [HttpPost("patient")]
@@ -92,7 +92,7 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
         }
 
         Response<List<MedicalTimelineResponse>> timelineByPatientIdResponse = await medicalTimelineService.GetFilteredAsync(GetUserId(), searchRequest);
-        return Ok(timelineByPatientIdResponse);
+        return StatusCode(timelineByPatientIdResponse.StatusCode, timelineByPatientIdResponse);
     }
 
     [HttpPost("patient-document")]
@@ -105,7 +105,7 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
         }
 
         Response<int> addDocumentResponse = await medicalTimelineService.AddDocumentAsync(documentRequest, GetUserId());
-        return Ok(addDocumentResponse);
+        return StatusCode(addDocumentResponse.StatusCode, addDocumentResponse);
     }
 
     [HttpDelete("documents/list")]
@@ -120,6 +120,6 @@ public class MedicalTimelineController(IMedicalTimelineService medicalTimelineSe
         Response<string> deleteManyResponse =
             await medicalTimelineService.DeleteManyDocumentAsync(request.DocumentIds, GetUserId());
 
-        return Ok(deleteManyResponse);
+        return StatusCode(deleteManyResponse.StatusCode, deleteManyResponse);
     }
 }
