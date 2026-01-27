@@ -6,5 +6,10 @@ namespace MedVault.Services.IServices;
 
 public interface IQrShareService
 {
- Task<Response<GenerateQrResponseDto>> GenerateAsync(int userId,GenerateQrRequestDto request);
+    Task<Response<string>> GenerateAsync(int userId, GenerateQrRequest GenerateQrRequest);
+    Task<Response<List<QrShareResponse>>> GetByPatientAsync(int userId);
+    Task<Response<List<QrShareResponse>>> GetByDoctorAsync(int userId);
+    Task<Response<QrShareResponse>> GetByIdAsync(Guid id);
+    Task<Response<string>> DeleteAsync(Guid id);
+
 }
