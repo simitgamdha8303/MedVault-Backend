@@ -80,7 +80,7 @@ public class QrShareController(IQrShareService qrShareService) : ControllerBase
     [Authorize(Roles = "Doctor")]
     public async Task<IActionResult> GetByDoctor()
     {
-        Response<List<QrShareResponse>> getByDoctorQrShareResponse = await qrShareService.GetByDoctorAsync(GetUserId());
+        Response<List<QrShareByDoctorResponse>> getByDoctorQrShareResponse = await qrShareService.GetByDoctorAsync(GetUserId());
 
         return StatusCode(getByDoctorQrShareResponse.StatusCode, getByDoctorQrShareResponse);
     }

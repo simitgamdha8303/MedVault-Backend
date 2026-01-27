@@ -163,7 +163,7 @@ public class QrShareService(IQrShareRepository qrShareRepository,
         );
     }
 
-    public async Task<Response<List<QrShareResponse>>> GetByDoctorAsync(int userId)
+    public async Task<Response<List<QrShareByDoctorResponse>>> GetByDoctorAsync(int userId)
     {
         bool userExists = await userRepository.AnyAsync(u => u.Id == userId);
         if (!userExists)
@@ -177,16 +177,15 @@ public class QrShareService(IQrShareRepository qrShareRepository,
             throw new ArgumentException(ErrorMessages.NotFound("Doctor"));
         }
 
-        List<QrShareResponse> qrShares =
+        List<QrShareByDoctorResponse> qrShares =
         (await qrShareRepository.GetListAsync(
-            r => r.DoctorId == doctor.Id,
-            r => new QrShareResponse
+            r => r.DoctorId == doctor.Id && !r.IsUsed && r.ExpiresAt > DateTime.UtcNow,
+            r => new QrShareByDoctorResponse
             {
                 Id = r.Id,
-                DoctorName = r.DoctorProfile != null ? r.DoctorProfile.User.FirstName + " " + r.DoctorProfile.User.LastName : null,
+                PatientName = r.PatientProfile != null ? r.PatientProfile.User.FirstName + " " + r.PatientProfile.User.LastName : null,
                 ExpiresAt = r.ExpiresAt,
                 CreatedAt = r.CreatedAt,
-                IsUsed = r.IsUsed,
             }
         ))
         .OrderBy(x => x.CreatedAt)
@@ -200,5 +199,4 @@ public class QrShareService(IQrShareRepository qrShareRepository,
             statusCode: (int)HttpStatusCode.OK
         );
     }
-
 }
