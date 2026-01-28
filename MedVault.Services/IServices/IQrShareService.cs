@@ -11,5 +11,8 @@ public interface IQrShareService
     Task<Response<List<QrShareByDoctorResponse>>> GetByDoctorAsync(int userId);
     Task<Response<QrShareResponse>> GetByIdAsync(Guid id);
     Task<Response<string>> DeleteAsync(Guid id);
+    Task<byte[]> GetQrImageByIdAsync(Guid id);
+    Task<string> GetQrTokenAsync(Guid qrShareId);
+    Task<Response<PatientQrAccessResponse>> GetPatientAccessByQrTokenAsync(string token, int doctorUserId);
 
 }

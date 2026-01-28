@@ -33,4 +33,7 @@ public static class ErrorMessages
 
     public const string END_DATE_BEFORE =
         "Recurrence end date must be after reminder time";
+
+        public const string QR_SHARE_EXPIRED =
+        "QR Share has expired";
 }

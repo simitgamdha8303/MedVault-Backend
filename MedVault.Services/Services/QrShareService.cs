@@ -9,6 +9,7 @@ using MedVault.Models.Dtos.RequestDtos;
 using MedVault.Models.Dtos.ResponseDtos;
 using MedVault.Models.Entities;
 using MedVault.Services.IServices;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using QRCoder;
 
@@ -56,16 +57,6 @@ public class QrShareService(IQrShareRepository qrShareRepository,
 
         await qrShareRepository.AddAsync(qrShare);
         await qrShareRepository.SaveChangesAsync();
-
-        string? baseUrl = configuration["App:BaseUrl"];
-        string? qrUrl = $"{baseUrl}/qr/view?token={Uri.EscapeDataString(accessToken)}";
-
-        using QRCodeGenerator qrGenerator = new QRCodeGenerator();
-        using QRCodeData qrCodeData = qrGenerator.CreateQrCode(qrUrl, QRCodeGenerator.ECCLevel.Q);
-        using PngByteQRCode qrCode = new PngByteQRCode(qrCodeData);
-
-        byte[] qrImageBytes = qrCode.GetGraphic(20);
-        string qrImageBase64 = Convert.ToBase64String(qrImageBytes);
 
         return ResponseHelper.Response(
             data: qrShare.Id.ToString(),
@@ -199,4 +190,157 @@ public class QrShareService(IQrShareRepository qrShareRepository,
             statusCode: (int)HttpStatusCode.OK
         );
     }
+
+    public async Task<byte[]> GetQrImageByIdAsync(Guid qrShareId)
+    {
+
+        QrShare? qrShare = await qrShareRepository.FirstOrDefaultAsync(
+            x => x.Id == qrShareId
+        );
+
+        if (qrShare == null)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("QR Share"));
+        }
+
+        if (qrShare.ExpiresAt <= DateTime.UtcNow)
+        {
+            throw new ArgumentException(ErrorMessages.QR_SHARE_EXPIRED);
+        }
+
+        string? baseUrl = configuration["App:BaseUrl"];
+        string qrUrl = $"{baseUrl}/qr/view?token={Uri.EscapeDataString(qrShare.AccessToken)}";
+
+        // string qrUrl = $"google.com";
+
+        using QRCodeGenerator qrGenerator = new QRCodeGenerator();
+        using QRCodeData qrCodeData = qrGenerator.CreateQrCode(
+            qrUrl,
+            QRCodeGenerator.ECCLevel.Q
+        );
+        using PngByteQRCode qrCode = new PngByteQRCode(qrCodeData);
+
+        byte[] qrImageBytes = qrCode.GetGraphic(20);
+
+        return qrImageBytes;
+    }
+
+    public async Task<string> GetQrTokenAsync(Guid qrShareId)
+    {
+        QrShare? qrShare = await qrShareRepository.FirstOrDefaultAsync(
+                x => x.Id == qrShareId
+            );
+
+        if (qrShare == null)
+        {
+            throw new ArgumentException(ErrorMessages.NotFound("QR Share"));
+        }
+
+        if (qrShare.ExpiresAt <= DateTime.UtcNow)
+        {
+            throw new ArgumentException(ErrorMessages.QR_SHARE_EXPIRED);
+        }
+
+        return qrShare.AccessToken;
+    }
+
+    public async Task<Response<PatientQrAccessResponse>> GetPatientAccessByQrTokenAsync(
+        string token,
+        int doctorUserId
+    )
+    {
+        QrShare? qrShare = await qrShareRepository
+           .Query()
+           .Include(q => q.PatientProfile)
+               .ThenInclude(p => p.User)
+           .Include(q => q.PatientProfile)
+               .ThenInclude(p => p.MedicalTimelines)
+                   .ThenInclude(mt => mt.Documents)
+           .Include(q => q.PatientProfile)
+               .ThenInclude(p => p.MedicalTimelines)
+                   .ThenInclude(mt => mt.DoctorProfile)
+                       .ThenInclude(d => d.User)
+           .Include(q => q.DoctorProfile)
+           .FirstOrDefaultAsync(q => q.AccessToken == token);
+
+        if (qrShare == null)
+        {
+            throw new ArgumentException("Invalid QR token");
+        }
+
+        if (qrShare.ExpiresAt <= DateTime.UtcNow)
+        {
+            throw new ArgumentException(ErrorMessages.QR_SHARE_EXPIRED);
+        }
+
+        if (qrShare.IsUsed)
+        {
+            throw new ArgumentException("QR token already used");
+        }
+
+        if (qrShare.DoctorProfile.UserId != doctorUserId)
+        {
+            throw new ArgumentException("Unauthorized doctor access");
+        }
+
+        qrShare.IsUsed = true;
+        qrShare.UsedAt = DateTime.UtcNow;
+        qrShareRepository.Update(qrShare);
+        await qrShareRepository.SaveChangesAsync();
+
+        PatientProfile? patient = qrShare.PatientProfile
+            ?? throw new ArgumentException("Patient profile not found");
+
+        return ResponseHelper.Response(
+            data: new PatientQrAccessResponse
+            {
+                PatientId = patient.Id,
+
+                PatientProfile = new PatientProfileResponse
+                {
+                    DateOfBirth = patient.DateOfBirth,
+                    Gender = patient.Gender,
+                    GenderValue = patient.Gender.ToString(),
+                    BloodGroup = patient.BloodGroup,
+                    BloodGroupValue = patient.BloodGroup.ToString(),
+                    Allergies = patient.Allergies,
+                    ChronicCondition = patient.ChronicCondition,
+                    EmergencyContactName = patient.EmergencyContactName,
+                    EmergencyContactPhone = patient.EmergencyContactPhone
+                },
+
+                MedicalTimelines = patient.MedicalTimelines
+                    .OrderByDescending(m => m.EventDate)
+                    .Select(m => new MedicalTimelineResponse
+                    {
+                        Id = m.Id,
+                        PatientId = m.PatientId,
+                        DoctorProfileId = m.DoctorProfileId,
+                        DoctorProfileName = m.DoctorProfile != null
+                            ? $"{m.DoctorProfile.User.FirstName} {m.DoctorProfile.User.LastName}"
+                            : null,
+                        DoctorName = m.DoctorName,
+                        CheckupTypeId = m.CheckupType,
+                        CheckupType = m.CheckupType.ToString(),
+                        EventDate = m.EventDate,
+                        Notes = m.Notes,
+                        CreatedAt = m.CreatedAt,
+                        UpdatedAt = m.UpdatedAt,
+                        DocumentResponses = m.Documents.Select(d => new DocumentResponse
+                        {
+                            Id = d.Id,
+                            FileName = d.FileName,
+                            FileUrl = d.FileUrl
+                        }).ToList()
+                    })
+                    .ToList()
+            },
+            succeeded: true,
+            message: SuccessMessages.RETRIEVED,
+            errors: null,
+            statusCode: (int)HttpStatusCode.OK
+        );
+    }
+
+
 }

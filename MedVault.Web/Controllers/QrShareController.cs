@@ -85,4 +85,35 @@ public class QrShareController(IQrShareService qrShareService) : ControllerBase
         return StatusCode(getByDoctorQrShareResponse.StatusCode, getByDoctorQrShareResponse);
     }
 
+    [HttpGet("{id}/image")]
+    [Authorize(Roles = "Doctor")]
+    public async Task<IActionResult> GetQrImage(Guid id)
+    {
+        if (id == Guid.Empty)
+        {
+            return BadRequest(ErrorMessages.Invalid("id"));
+        }
+
+        byte[] imageBytes = await qrShareService.GetQrImageByIdAsync(id);
+
+        return File(imageBytes, "image/png");
+    }
+
+    [HttpGet("{id}/open")]
+    [Authorize(Roles = "Doctor")]
+    public async Task<IActionResult> OpenQr(Guid id)
+    {
+        string token = await qrShareService.GetQrTokenAsync(id);
+        return Ok(token);
+    }
+
+    [HttpGet("by-qr-token")]
+    [Authorize(Roles = "Doctor")]
+    public async Task<IActionResult> GetPatientByQrToken([FromQuery] string token)
+    {
+
+        Response<PatientQrAccessResponse> patientAccessResponse = await qrShareService.GetPatientAccessByQrTokenAsync(token, GetUserId());
+
+        return Ok(patientAccessResponse);
+    }
 }
