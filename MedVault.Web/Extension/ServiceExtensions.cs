@@ -86,6 +86,7 @@ public static class ServiceExtensions
         builder.Services.AddScoped<INotificationDispatcher, SignalRNotificationDispatcher>();
         builder.Services.AddScoped<IDashboardService, DashboardService>();
         builder.Services.AddScoped<IQrShareService, QrShareService>();
+        builder.Services.AddScoped<IAppointmentService, AppointmentService>();
         builder.Services.AddScoped<ReminderJobService>();
 
         builder.Services.AddScoped<JwtService>();

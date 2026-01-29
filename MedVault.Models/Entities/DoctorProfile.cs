@@ -30,6 +30,7 @@ public class DoctorProfile
     // Navigation
 
     public User User { get; set; } = null!;
+    public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 
     public Hospital Hospital { get; set; } = null!;
 }

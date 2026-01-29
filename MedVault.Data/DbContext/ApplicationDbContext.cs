@@ -23,6 +23,7 @@ namespace MedVault.Data
         public DbSet<QrShare> QrShares => Set<QrShare>();
         public DbSet<OtpVerification> OtpVerifications => Set<OtpVerification>();
         public DbSet<UserRole> UserRoles => Set<UserRole>();
+        public DbSet<Appointment> Appointments => Set<Appointment>();
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -136,6 +137,19 @@ namespace MedVault.Data
                 .HasOne(q => q.DoctorProfile)
                 .WithMany()
                 .HasForeignKey(q => q.DoctorId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Appointment
+            modelBuilder.Entity<Appointment>()
+                .HasOne(a => a.PatientProfile)
+                .WithMany(p => p.Appointments)
+                .HasForeignKey(a => a.PatientId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Appointment>()
+                .HasOne(a => a.DoctorProfile)
+                .WithMany(d => d.Appointments)
+                .HasForeignKey(a => a.DoctorId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // OTP Verification

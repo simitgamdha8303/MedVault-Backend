@@ -50,3 +50,11 @@ public enum RecurrenceType
     Weekly = 2
 }
 
+public enum AppointmentStatus
+{
+    Pending,
+    Confirmed,
+    Completed,
+    Cancelled,
+}
+

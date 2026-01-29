@@ -43,6 +43,7 @@ public class PatientProfile
     public ICollection<Document> Documents { get; set; } = new List<Document>();
 
     public ICollection<MedicalTimeline> MedicalTimelines { get; set; } = new List<MedicalTimeline>();
+    public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 
     public ICollection<Reminder> Reminder { get; set; } = new List<Reminder>();
 }
