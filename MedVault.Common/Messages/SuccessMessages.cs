@@ -51,4 +51,16 @@ public static class SuccessMessages
     public const string NO_APPOINTMENTS =
    "No upcoming appointments";
 
+    public const string APPOINTMENT_APPROVED =
+        "Appointment approved successfully.";
+
+    public const string APPOINTMENT_REJECTED =
+        "Appointment rejected successfully.";
+
+    public const string APPOINTMENT_CANNOT_BE_DELETED =
+        "Confirmed appointments cannot be deleted.";
+
+    public const string APPOINTMENT_CANNOT_BE_UPDATED =
+        "Only pending appointments can be updated.";
+
 }

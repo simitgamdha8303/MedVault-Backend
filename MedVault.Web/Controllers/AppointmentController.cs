@@ -80,4 +80,45 @@ public class AppointmentController(IAppointmentService appointmentService) : Con
 
         return StatusCode(response.StatusCode, response);
     }
+
+    [HttpPut("{id}")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> Update(int id, [FromBody] BookAppointmentRequest bookAppointmentRequest)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        Response<string> updateResponse = await appointmentService.UpdateAsync(id, GetUserId(), bookAppointmentRequest);
+
+        return StatusCode(updateResponse.StatusCode, updateResponse);
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        Response<string> deleteResponse = await appointmentService.DeleteAsync(id, GetUserId());
+
+        return StatusCode(deleteResponse.StatusCode, deleteResponse);
+    }
+
+    [HttpPut("{id}/complete")]
+    [Authorize(Roles = "Doctor")]
+    public async Task<IActionResult> Complete(int id)
+    {
+        var res = await appointmentService.CompleteAsync(id, GetUserId());
+        return StatusCode(res.StatusCode, res);
+    }
+
+    [HttpPut("{id}/cancel")]
+    [Authorize(Roles = "Doctor")]
+    public async Task<IActionResult> Cancel(int id)
+    {
+        var res = await appointmentService.CancelByDoctorAsync(id, GetUserId());
+        return StatusCode(res.StatusCode, res);
+    }
+
+
 }
