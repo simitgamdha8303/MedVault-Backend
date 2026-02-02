@@ -15,12 +15,16 @@ namespace MedVault.Services.Services;
 public class AppointmentService(
     IGenericRepository<Appointment> appointmentRepository,
     IPatientProfileRepository patientProfileRepository,
-    IDoctorProfileRepository doctorProfileRepository
+    IDoctorProfileRepository doctorProfileRepository,
+     INotificationDispatcher notificationDispatcher
 ) : IAppointmentService
 {
     public async Task<Response<string>> BookAsync(int userId, BookAppointmentRequest bookAppointmentRequest)
     {
-        PatientProfile? patient = await patientProfileRepository.FirstOrDefaultAsync(p => p.UserId == userId);
+        PatientProfile? patient = await patientProfileRepository.Query()
+        .Where(p => p.UserId == userId)
+        .Select(p => new PatientProfile { Id = p.Id })
+        .FirstAsync(); ;
 
         if (patient == null)
         {
@@ -33,6 +37,12 @@ public class AppointmentService(
         {
             throw new ArgumentException(ErrorMessages.NotFound("Doctor"));
         }
+
+        int doctorUserId = await doctorProfileRepository
+      .Query()
+      .Where(d => d.Id == bookAppointmentRequest.DoctorId)
+      .Select(d => d.UserId)
+      .FirstAsync();
 
         Appointment appointment = new()
         {
@@ -49,6 +59,12 @@ public class AppointmentService(
         };
 
         await appointmentRepository.AddAsync(appointment);
+
+        await notificationDispatcher.SendAppointmentUpdatedAsync(
+       appointment.Id,
+       userId,
+       doctorUserId
+   );
 
         return ResponseHelper.Response(
             appointment.Id.ToString(),
@@ -153,6 +169,17 @@ public class AppointmentService(
         appointmentRepository.Update(appointment);
         await appointmentRepository.SaveChangesAsync();
 
+        await notificationDispatcher.SendAppointmentUpdatedAsync(
+     appointment.Id,
+     await patientProfileRepository
+         .Query()
+         .Where(p => p.Id == appointment.PatientId)
+         .Select(p => p.UserId)
+         .FirstAsync(),
+     doctorUserId
+ );
+
+
         return ResponseHelper.Response<string>(
             null,
             true,
@@ -183,6 +210,17 @@ public class AppointmentService(
 
         appointmentRepository.Update(appointment);
         await appointmentRepository.SaveChangesAsync();
+
+        await notificationDispatcher.SendAppointmentUpdatedAsync(
+     appointment.Id,
+     await patientProfileRepository
+         .Query()
+         .Where(p => p.Id == appointment.PatientId)
+         .Select(p => p.UserId)
+         .FirstAsync(),
+     doctorUserId
+ );
+
 
         return ResponseHelper.Response<string>(
             null,
@@ -234,6 +272,17 @@ public class AppointmentService(
         appointmentRepository.Update(appointment);
         await appointmentRepository.SaveChangesAsync();
 
+        await notificationDispatcher.SendAppointmentUpdatedAsync(
+    appointment.Id,
+    userId,
+    await doctorProfileRepository
+        .Query()
+        .Where(d => d.Id == appointment.DoctorId)
+        .Select(d => d.UserId)
+        .FirstAsync()
+);
+
+
         return ResponseHelper.Response<string>(
             null,
             true,
@@ -271,8 +320,20 @@ public class AppointmentService(
             );
         }
 
+        int doctorUserId = await doctorProfileRepository
+     .Query()
+     .Where(d => d.Id == appointment.DoctorId)
+     .Select(d => d.UserId)
+     .FirstAsync();
+
         appointmentRepository.Delete(appointment);
         await appointmentRepository.SaveChangesAsync();
+
+        await notificationDispatcher.SendAppointmentUpdatedAsync(
+     appointment.Id,
+     userId,
+     doctorUserId
+ );
 
         return ResponseHelper.Response<string>(
             null,
@@ -296,6 +357,19 @@ public class AppointmentService(
         appointmentRepository.Update(appointment);
         await appointmentRepository.SaveChangesAsync();
 
+        int patientUserId = await patientProfileRepository
+     .Query()
+     .Where(p => p.Id == appointment.PatientId)
+     .Select(p => p.UserId)
+     .FirstAsync();
+
+        await notificationDispatcher.SendAppointmentUpdatedAsync(
+            appointment.Id,
+            patientUserId,
+            doctorUserId
+        );
+
+
         return ResponseHelper.Response<string>(null, true, "Appointment completed", null, 200);
     }
 
@@ -312,9 +386,20 @@ public class AppointmentService(
         appointmentRepository.Update(appointment);
         await appointmentRepository.SaveChangesAsync();
 
+        int patientUserId = await patientProfileRepository
+    .Query()
+    .Where(p => p.Id == appointment.PatientId)
+    .Select(p => p.UserId)
+    .FirstAsync();
+
+        await notificationDispatcher.SendAppointmentUpdatedAsync(
+            appointment.Id,
+            patientUserId,
+            doctorUserId
+        );
+
+
         return ResponseHelper.Response<string>(null, true, "Appointment cancelled", null, 200);
     }
-
-
 
 }

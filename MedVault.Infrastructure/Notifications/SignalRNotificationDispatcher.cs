@@ -3,6 +3,7 @@ using MedVault.Infrastructure.Hubs;
 using MedVault.Models.Entities;
 using MedVault.Utilities.EmailServices;
 using MedVault.Data.IRepositories;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace MedVault.Infrastructure.Notifications;
@@ -35,5 +36,30 @@ public class SignalRNotificationDispatcher(IHubContext<NotificationHub> hubConte
 
         await emailService.SendReminderAsync(user.Email, reminder);
     }
+
+    public async Task SendAppointmentUpdatedAsync(
+     int appointmentId,
+     int patientUserId,
+     int doctorUserId)
+    {
+        await hubContext.Clients
+            .Groups(patientUserId.ToString(), doctorUserId.ToString())
+            .SendAsync("AppointmentUpdated", new { appointmentId });
+    }
+
+    public async Task SendQrShareUpdatedAsync(
+        Guid qrShareId,
+        int patientUserId,
+        int doctorUserId)
+    {
+        await hubContext.Clients
+            .Groups(patientUserId.ToString(), doctorUserId.ToString())
+            .SendAsync("QrShareUpdated", new
+            {
+                qrShareId
+            });
+    }
+
+
 
 }

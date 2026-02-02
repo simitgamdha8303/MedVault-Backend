@@ -19,6 +19,7 @@ public class QrShareService(IQrShareRepository qrShareRepository,
  IConfiguration configuration,
  IPatientProfileRepository patientProfileRepository,
  IDoctorProfileRepository doctorProfileRepository,
+ INotificationDispatcher notificationDispatcher,
  IUserRepository userRepository) : IQrShareService
 {
     public async Task<Response<string>> GenerateAsync(
@@ -57,6 +58,18 @@ public class QrShareService(IQrShareRepository qrShareRepository,
 
         await qrShareRepository.AddAsync(qrShare);
         await qrShareRepository.SaveChangesAsync();
+
+        int doctorUserId = await doctorProfileRepository
+    .Query()
+    .Where(d => d.Id == GenerateQrRequest.DoctorId)
+    .Select(d => d.UserId)
+    .FirstAsync();
+
+        await notificationDispatcher.SendQrShareUpdatedAsync(
+            qrShare.Id,
+            userId,
+            doctorUserId
+        );
 
         return ResponseHelper.Response(
             data: qrShare.Id.ToString(),
@@ -142,8 +155,26 @@ public class QrShareService(IQrShareRepository qrShareRepository,
             throw new ArgumentException(ErrorMessages.NotFound("QR Share"));
         }
 
+        int patientUserId = await patientProfileRepository
+    .Query()
+    .Where(p => p.Id == qrShare.PatientId)
+    .Select(p => p.UserId)
+    .FirstAsync();
+
+        int doctorUserId = await doctorProfileRepository
+            .Query()
+            .Where(d => d.Id == qrShare.DoctorId)
+            .Select(d => d.UserId)
+            .FirstAsync();
+
         qrShareRepository.Delete(qrShare);
         await qrShareRepository.SaveChangesAsync();
+
+        await notificationDispatcher.SendQrShareUpdatedAsync(
+    qrShare.Id,
+    patientUserId,
+    doctorUserId
+);
 
         return ResponseHelper.Response<string>(
             null,
@@ -287,6 +318,13 @@ public class QrShareService(IQrShareRepository qrShareRepository,
         qrShare.UsedAt = DateTime.UtcNow;
         qrShareRepository.Update(qrShare);
         await qrShareRepository.SaveChangesAsync();
+
+        await notificationDispatcher.SendQrShareUpdatedAsync(
+    qrShare.Id,
+    qrShare.PatientProfile.UserId,
+    doctorUserId
+);
+
 
         PatientProfile? patient = qrShare.PatientProfile
             ?? throw new ArgumentException("Patient profile not found");
