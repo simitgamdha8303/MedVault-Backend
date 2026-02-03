@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -21,12 +22,19 @@ public class JwtService
     public string GenerateToken(User user, Role role)
     {
 
+        var culture = CultureInfo.CurrentCulture;
+        var textInfo = culture.TextInfo;
+
+        string fullName =
+            textInfo.ToTitleCase($"{user.FirstName} {user.LastName}".ToLower());
+
+
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Email, user.Email),
             new Claim(ClaimTypes.Role, Enum.GetName(typeof(Role), role)!),
-            new Claim("name", user.FirstName)
+            new Claim("name", fullName)
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));

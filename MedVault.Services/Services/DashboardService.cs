@@ -6,13 +6,14 @@ using MedVault.Common.Response;
 using MedVault.Data.IRepositories;
 using MedVault.Models.Dtos.ResponseDtos;
 using MedVault.Models.Entities;
+using MedVault.Models.Enums;
 using MedVault.Services.IServices;
 using Microsoft.EntityFrameworkCore;
 
 namespace MedVault.Services.Services;
 
 public class DashboardService(IPatientProfileRepository patientProfileRepository, IDoctorProfileRepository doctorProfileRepository,
- IMedicalTimelineRepository medicalTimelineRepository, IReminderRepository reminderRepository) : IDashboardService
+ IMedicalTimelineRepository medicalTimelineRepository, IReminderRepository reminderRepository, IAppointmentRepository appointmentRepository) : IDashboardService
 {
     public async Task<Response<PatientLastVisitResponse>> GetLastVisit(int userId)
     {
@@ -24,26 +25,23 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
         }
 
         PatientLastVisitResponse? lastVisit =
-     await medicalTimelineRepository
-         .Query()
-         .Where(m => m.PatientId == patientProfile.Id)
-         .OrderByDescending(m => m.EventDate)
-         .Select(m => new PatientLastVisitResponse
-         {
-             VisitDate = m.EventDate.ToLocalTime().ToString("dd MMM yyyy"),
+           await appointmentRepository
+               .Query()
+               .Where(a =>
+                   a.PatientId == patientProfile.Id &&
+                   a.Status == AppointmentStatus.Completed
+               )
+               .OrderByDescending(a => a.AppointmentDate)
+               .Select(a => new PatientLastVisitResponse
+               {
+                   VisitDate = a.AppointmentDate.ToLocalTime().ToString("dd MMM yyyy"),
 
-             DocotrName =
-                 !string.IsNullOrEmpty(m.DoctorName)
-                     ? m.DoctorName
-                     : (
-                         m.DoctorProfile != null &&
-                         m.DoctorProfile.User != null
-                             ? m.DoctorProfile.User.FirstName + " " +
-                               m.DoctorProfile.User.LastName
-                             : "Unknown Doctor"
-                       )
-         })
-         .FirstOrDefaultAsync();
+                   DocotrName =
+                       a.DoctorProfile.User.FirstName + " " +
+                       a.DoctorProfile.User.LastName
+               })
+               .FirstOrDefaultAsync();
+
 
         if (lastVisit == null)
         {
@@ -64,6 +62,7 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
             statusCode: (int)HttpStatusCode.OK
         );
     }
+
 
     public async Task<Response<int>> GetMedicalTimelineCount(int userId)
     {
@@ -99,15 +98,16 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
         DateTime now = DateTime.UtcNow;
 
         DateTime? upcomingAppointment =
-            await reminderRepository
-                .Query()
-                .Where(r =>
-                    r.PatientId == patientProfile.Id &&
-                    r.ReminderTime > now
-                )
-                .OrderBy(r => r.ReminderTime)
-                .Select(r => (DateTime?)r.ReminderTime)
-                .FirstOrDefaultAsync();
+     await appointmentRepository
+         .Query()
+         .Where(a =>
+             a.PatientId == patientProfile.Id &&
+             a.AppointmentDate > now &&
+             a.Status != AppointmentStatus.Cancelled
+         )
+         .OrderBy(a => a.AppointmentDate)
+         .Select(a => (DateTime?)a.AppointmentDate)
+         .FirstOrDefaultAsync();
 
         if (!upcomingAppointment.HasValue)
         {
@@ -140,21 +140,23 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
             throw new ArgumentException(ErrorMessages.NotFound("Patient"));
         }
 
-        var data = await medicalTimelineRepository
-            .Query()
-            .Where(m => m.PatientId == patient.Id)
-            .Select(m => new
-            {
-                m.EventDate,
-                Doctor = !string.IsNullOrWhiteSpace(m.DoctorName)
-                ? m.DoctorName
-                : m.DoctorProfile != null &&
-                  m.DoctorProfile.User != null &&
-                  !string.IsNullOrWhiteSpace(m.DoctorProfile.User.FirstName)
-                    ? m.DoctorProfile.User.FirstName
-                    : "Unknown Doctor"
-            })
-            .ToListAsync();
+        var data = await appointmentRepository
+      .Query()
+      .Where(a =>
+          a.PatientId == patient.Id &&
+          a.Status == AppointmentStatus.Completed
+      )
+      .Select(a => new
+      {
+          EventDate = a.AppointmentDate.Date.Add(a.AppointmentTime),
+          Doctor =
+              a.DoctorProfile != null &&
+              a.DoctorProfile.User != null &&
+              !string.IsNullOrWhiteSpace(a.DoctorProfile.User.FirstName)
+                  ? a.DoctorProfile.User.FirstName
+                  : "Unknown Doctor"
+      })
+      .ToListAsync();
 
         DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
         List<VisitChartPointResponse> result = new();
@@ -185,7 +187,7 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
                             };
                         })
                         .ToList();
-            }
+        }
 
         // LAST 3 MONTHS
         else if (filter == "last-3-months")
@@ -267,16 +269,25 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
             throw new ArgumentException(ErrorMessages.NotFound("Doctor"));
         }
 
-        DoctorLastCheckupResponse? lastVisit = await medicalTimelineRepository
-            .Query()
-            .Where(m => m.DoctorProfileId == doctor.Id)
-            .OrderByDescending(m => m.EventDate)
-            .Select(m => new DoctorLastCheckupResponse
-            {
-                PatientName = m.PatientProfile.User.FirstName + " " + m.PatientProfile.User.LastName,
-                VisitDate = m.EventDate.ToLocalTime().ToString("dd MMM yyyy")
-            })
-            .FirstOrDefaultAsync();
+        DoctorLastCheckupResponse? lastVisit =
+       await appointmentRepository
+           .Query()
+           .Where(a =>
+               a.DoctorId == doctor.Id &&
+               a.Status == AppointmentStatus.Completed
+           )
+           .OrderByDescending(a => a.AppointmentDate)
+           .Select(a => new DoctorLastCheckupResponse
+           {
+               PatientName =
+                   a.PatientProfile.User.FirstName + " " +
+                   a.PatientProfile.User.LastName,
+
+               VisitDate = a.AppointmentDate
+                   .ToLocalTime()
+                   .ToString("dd MMM yyyy")
+           })
+           .FirstOrDefaultAsync();
 
         return ResponseHelper.Response(lastVisit, true, SuccessMessages.RETRIEVED, null, (int)HttpStatusCode.OK);
     }
@@ -289,9 +300,12 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
             throw new ArgumentException(ErrorMessages.NotFound("Doctor"));
         }
 
-        int count = await medicalTimelineRepository
-            .Query()
-            .CountAsync(m => m.DoctorProfileId == doctor.Id);
+        int count = await appointmentRepository
+         .Query()
+         .CountAsync(a =>
+             a.DoctorId == doctor.Id &&
+             a.Status == AppointmentStatus.Completed
+         );
 
         return ResponseHelper.Response(count, true, SuccessMessages.RETRIEVED, null, (int)HttpStatusCode.OK);
     }
@@ -304,22 +318,27 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
             throw new ArgumentException(ErrorMessages.NotFound("Doctor"));
         }
 
-        List<TopPatientResponse>? topPatients = await medicalTimelineRepository
-            .Query()
-            .Where(m => m.DoctorProfileId == doctor.Id)
-            .GroupBy(m => new
-            {
-                m.PatientProfile.User.FirstName,
-                m.PatientProfile.User.LastName
-            })
-            .Select(g => new TopPatientResponse
-            {
-                PatientName = g.Key.FirstName + " " + g.Key.LastName,
-                VisitCount = g.Count()
-            })
-            .OrderByDescending(x => x.VisitCount)
-            .Take(3)
-            .ToListAsync();
+        List<TopPatientResponse> topPatients =
+     await appointmentRepository
+         .Query()
+         .Where(a =>
+             a.DoctorId == doctor.Id &&
+             a.Status == AppointmentStatus.Completed
+         )
+         .GroupBy(a => new
+         {
+             a.PatientProfile.User.FirstName,
+             a.PatientProfile.User.LastName
+         })
+         .Select(g => new TopPatientResponse
+         {
+             PatientName = g.Key.FirstName + " " + g.Key.LastName,
+             VisitCount = g.Count()
+         })
+         .OrderByDescending(x => x.VisitCount)
+         .Take(3)
+         .ToListAsync();
+
 
         return ResponseHelper.Response(topPatients, true, SuccessMessages.RETRIEVED, null, (int)HttpStatusCode.OK);
     }
@@ -334,20 +353,23 @@ public class DashboardService(IPatientProfileRepository patientProfileRepository
             throw new ArgumentException(ErrorMessages.NotFound("Doctor"));
         }
 
-        var data = await medicalTimelineRepository
-            .Query()
-            .Where(m => m.DoctorProfileId == doctor.Id)
-            .Select(m => new
-            {
-                m.EventDate,
-                Patient =
-                    m.PatientProfile != null &&
-                    m.PatientProfile.User != null
-                        ? m.PatientProfile.User.FirstName + " " +
-                          m.PatientProfile.User.LastName
-                        : "Unknown Patient"
-            })
-            .ToListAsync();
+        var data = await appointmentRepository
+      .Query()
+      .Where(a =>
+          a.DoctorId == doctor.Id &&
+          a.Status == AppointmentStatus.Completed
+      )
+      .Select(a => new
+      {
+          EventDate = a.AppointmentDate.Date.Add(a.AppointmentTime),
+          Patient =
+              a.PatientProfile != null &&
+              a.PatientProfile.User != null
+                  ? a.PatientProfile.User.FirstName + " " +
+                    a.PatientProfile.User.LastName
+                  : "Unknown Patient"
+      })
+      .ToListAsync();
 
         DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
         List<DoctorVisitChartPointResponse> result = new();

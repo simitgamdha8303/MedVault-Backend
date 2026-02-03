@@ -4,6 +4,7 @@ using MedVault.Data.IRepositories;
 using MedVault.Models.Dtos.RequestDtos;
 using MedVault.Models.Dtos.ResponseDtos;
 using MedVault.Models.Entities;
+using MedVault.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
@@ -84,20 +85,23 @@ public class DoctorProfileRepository(ApplicationDbContext context, IConfiguratio
 
     public async Task<List<DoctorPatientListResponse>> GetPatientsByDoctorIdAsync(int doctorProfileId)
     {
-        return await context.MedicalTimelines
-            .Where(mt => mt.DoctorProfileId == doctorProfileId)
-            .GroupBy(mt => new
-            {
-                mt.PatientProfile.Id,
-                mt.PatientProfile.User.FirstName
-            })
-            .Select(g => new DoctorPatientListResponse
-            {
-                PatientId = g.Key.Id,
-                PatientName = g.Key.FirstName,
-                TotalVisits = g.Count()
-            })
-            .ToListAsync();
+        return await context.Appointments
+       .Where(a =>
+           a.DoctorId == doctorProfileId &&
+           a.Status == AppointmentStatus.Completed
+       )
+       .GroupBy(a => new
+       {
+           a.PatientProfile.Id,
+           a.PatientProfile.User.FirstName
+       })
+       .Select(g => new DoctorPatientListResponse
+       {
+           PatientId = g.Key.Id,
+           PatientName = g.Key.FirstName,
+           TotalVisits = g.Count()
+       })
+       .ToListAsync();
     }
 
 }
